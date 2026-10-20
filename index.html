@@ -1,0 +1,2414 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ระบบจองรถโรงเรียน พ.ก.</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: { sarabun: ['Sarabun','sans-serif'] },
+      colors: {
+        brand: { DEFAULT:'#0C7C82', light:'#35B4B0', mint:'#26A69A', lime:'#AED581',
+                 amber:'#FFCA28', coral:'#FF8A65', red:'#EF5350', plum:'#4A2C6D',
+                 deepred:'#D32F2F', orange:'#F57C00', yellow:'#FBC02D', blue:'#0288D1' }
+      }
+    }
+  }
+}
+</script>
+<style>
+  :root{ --c1:#0C7C82; --c2:#35B4B0; }
+  *{ -webkit-tap-highlight-color: transparent; }
+  body{ font-family:'Sarabun',sans-serif; background:#f6f8f9; }
+  ::-webkit-scrollbar{ width:8px; height:8px; }
+  ::-webkit-scrollbar-thumb{ background:#cbd5e1; border-radius:99px; }
+  ::-webkit-scrollbar-thumb:hover{ background:#94a3b8; }
+
+  .skeleton{ background:linear-gradient(90deg,#e8eef0 25%,#f4f7f8 50%,#e8eef0 75%);
+             background-size:200% 100%; animation:sk 1.2s ease-in-out infinite; border-radius:12px;}
+  @keyframes sk{ 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+  .nav-item{ display:flex; align-items:center; gap:.7rem; padding:.6rem .8rem; border-radius:.85rem;
+             font-size:.925rem; font-weight:500; color:#475569; cursor:pointer; transition:.18s; }
+  .nav-item:hover{ background:#eff6f6; color:#0C7C82; }
+  .nav-item.active{ background:linear-gradient(135deg,#0C7C82,#35B4B0); color:#fff; box-shadow:0 6px 16px -6px rgba(12,124,130,.7); }
+  .nav-item i{ width:20px; text-align:center; }
+  .nav-group{ font-size:.7rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+              color:#94a3b8; padding:.9rem .8rem .35rem; }
+
+  .card{ background:#fff; border-radius:1.15rem; border:1px solid #e9eef0; box-shadow:0 2px 10px -6px rgba(15,60,64,.25); }
+  .lbl{ display:block; font-size:.82rem; font-weight:600; color:#334155; margin-bottom:.32rem; }
+  .inp{ width:100%; border:1.5px solid #e2e8f0; border-radius:.8rem; padding:.6rem .85rem; font-size:.9rem;
+        background:#fff; transition:.15s; outline:none; }
+  .inp:focus{ border-color:#35B4B0; box-shadow:0 0 0 4px rgba(53,180,176,.15); }
+  .inp:disabled,.inp[readonly]{ background:#f1f5f9; color:#64748b; }
+  .btn{ display:inline-flex; align-items:center; justify-content:center; gap:.45rem; border-radius:.85rem;
+        padding:.62rem 1.1rem; font-weight:600; font-size:.9rem; transition:.18s; cursor:pointer; border:none; }
+  .btn-primary{ background:linear-gradient(135deg,#0C7C82,#35B4B0); color:#fff; box-shadow:0 8px 18px -8px rgba(12,124,130,.9); }
+  .btn-primary:hover{ filter:brightness(1.07); transform:translateY(-1px); }
+  .btn-ghost{ background:#f1f5f9; color:#334155; }
+  .btn-ghost:hover{ background:#e2e8f0; }
+  .btn-danger{ background:#EF5350; color:#fff; }
+  .btn-danger:hover{ background:#D32F2F; }
+  .btn-warn{ background:#FFCA28; color:#4a3200; }
+  .btn-sm{ padding:.35rem .7rem; font-size:.78rem; border-radius:.6rem; }
+
+  .badge{ display:inline-flex; align-items:center; gap:.3rem; font-size:.72rem; font-weight:700;
+          padding:.22rem .6rem; border-radius:99px; }
+  .b-green{ background:#dcfce7; color:#15803d; }
+  .b-red{ background:#fee2e2; color:#b91c1c; }
+  .b-yellow{ background:#fef3c7; color:#a16207; }
+  .b-gray{ background:#e2e8f0; color:#475569; }
+  .b-teal{ background:#ccfbf1; color:#0f766e; }
+  .b-blue{ background:#dbeafe; color:#1d4ed8; }
+  .b-plum{ background:#ede9fe; color:#5b21b6; }
+
+  .cal-day{ min-height:104px; }
+  .chip{ font-size:10.5px; line-height:1.25; padding:2px 5px; border-radius:6px; font-weight:600;
+         white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block; }
+
+  .spin{ animation:sp .8s linear infinite; }
+  @keyframes sp{ to{ transform:rotate(360deg) } }
+
+  table.tbl{ width:100%; border-collapse:separate; border-spacing:0; font-size:.85rem; }
+  table.tbl th{ background:#f1f7f7; color:#0C7C82; font-weight:700; font-size:.78rem; text-align:left;
+                padding:.7rem .8rem; white-space:nowrap; position:sticky; top:0; z-index:2; }
+  table.tbl td{ padding:.7rem .8rem; border-top:1px solid #eef2f4; vertical-align:top; }
+  table.tbl tbody tr:hover{ background:#f8fdfd; }
+
+  .fade-in{ animation:fi .3s ease; }
+  @keyframes fi{ from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none} }
+
+  .modal-bg{ position:fixed; inset:0; background:rgba(15,30,32,.55); backdrop-filter:blur(3px);
+             z-index:80; display:flex; align-items:center; justify-content:center; padding:1rem; }
+  .modal-box{ background:#fff; border-radius:1.25rem; width:100%; max-height:92vh; overflow:auto;
+              animation:fi .25s ease; }
+  .acc-body{ display:none; }
+  .acc.open .acc-body{ display:block; }
+  .acc.open .acc-head .fa-chevron-down{ transform:rotate(180deg); }
+  .acc-head .fa-chevron-down{ transition:.2s; }
+
+  #bottomNav{ display:none; }
+  @media (max-width:1023px){ #bottomNav{ display:flex; } }
+</style>
+</head>
+<body class="font-sarabun text-slate-800">
+
+<!-- ================= APP ================= -->
+<div class="min-h-screen flex">
+
+  <!-- Sidebar -->
+  <aside id="sidebar" class="fixed lg:sticky top-0 inset-y-0 left-0 z-50 w-[278px] h-screen bg-white border-r border-slate-200
+         overflow-y-auto -translate-x-full lg:translate-x-0 transition-transform duration-300 shrink-0">
+    <div class="p-4">
+      <div class="flex items-center gap-3 p-3 rounded-2xl bg-gradient-to-br from-[#0C7C82] to-[#35B4B0] text-white shadow-lg shadow-teal-900/20">
+        <div class="w-11 h-11 rounded-xl bg-white/20 flex items-center justify-center text-xl">
+          <i class="fa-solid fa-bus-simple"></i>
+        </div>
+        <div class="leading-tight">
+          <div class="font-extrabold text-[15px]">ระบบจองรถโรงเรียน</div>
+          <div class="text-xs opacity-90 font-semibold tracking-wide">พ.ก. • PK Booking</div>
+        </div>
+      </div>
+    </div>
+
+    <nav class="px-3 pb-8">
+      <p class="nav-group">หน้าหลัก</p>
+      <a class="nav-item" data-page="dashboard"><i class="fa-solid fa-gauge-high"></i> แดชบอร์ด</a>
+      <a class="nav-item" data-page="calendar"><i class="fa-regular fa-calendar-days"></i> ปฏิทินการจอง</a>
+
+      <p class="nav-group">การจองรถ</p>
+      <a class="nav-item" data-page="book"><i class="fa-solid fa-square-plus"></i> จองรถโรงเรียน</a>
+      <a class="nav-item" data-page="list"><i class="fa-solid fa-list-ul"></i> รายการจองทั้งหมด</a>
+
+      <p class="nav-group">สถิติ</p>
+      <a class="nav-item" data-page="stats"><i class="fa-solid fa-chart-column"></i> สถิติการจอง</a>
+
+      <p class="nav-group">ผู้ดูแลระบบ</p>
+      <a class="nav-item" data-page="admin"><i class="fa-solid fa-clipboard-check"></i> อนุมัติ / จัดการการจอง
+        <span id="sideBadge" class="ml-auto hidden text-[11px] font-extrabold bg-rose-500 text-white rounded-full px-2 py-[2px]">0</span>
+      </a>
+      <a class="nav-item" data-page="vehicles"><i class="fa-solid fa-truck-front"></i> ประเภทรถที่ไป</a>
+      <a class="nav-item" data-page="drivers"><i class="fa-solid fa-id-card"></i> รายชื่อผู้ขับรถ</a>
+      <a class="nav-item" data-page="logs"><i class="fa-solid fa-clock-rotate-left"></i> ประวัติการแก้ไข</a>
+      <a class="nav-item" data-page="settings"><i class="fa-solid fa-bell"></i> ตั้งค่าการแจ้งเตือน</a>
+
+      <div class="mt-4 mx-2 p-3 rounded-xl bg-slate-50 border border-slate-200 text-[11px] text-slate-500">
+        <i class="fa-solid fa-circle-info text-brand"></i>
+        ข้อมูลถูกจัดเก็บใน localStorage ของเบราว์เซอร์
+      </div>
+    </nav>
+  </aside>
+
+  <div id="overlay" class="fixed inset-0 bg-black/40 z-40 hidden lg:hidden"></div>
+
+  <!-- Main -->
+  <div class="flex-1 flex flex-col min-w-0">
+
+    <!-- Header -->
+    <header class="sticky top-0 z-30 bg-white/85 backdrop-blur-md border-b border-slate-200">
+      <div class="flex items-center gap-2 px-3 lg:px-6 h-16">
+        <button id="btnMenu" class="lg:hidden w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 flex items-center justify-center">
+          <i class="fa-solid fa-bars text-slate-600"></i>
+        </button>
+
+        <!-- ปุ่ม login ซ้ายบน -->
+        <button id="btnLogin" class="btn btn-primary btn-sm">
+          <i class="fa-solid fa-right-to-bracket"></i><span class="hidden sm:inline">เข้าสู่ระบบผู้ดูแล</span>
+        </button>
+
+        <div class="ml-auto flex items-center gap-2">
+          <button id="btnBell" class="relative w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 flex items-center justify-center">
+            <i class="fa-solid fa-bell text-slate-600"></i>
+            <span id="bellBadge" class="hidden absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white
+                  text-[10px] font-extrabold flex items-center justify-center">0</span>
+          </button>
+          <div id="userChip" class="hidden items-center gap-2 pl-1 pr-3 py-1 rounded-xl bg-teal-50 border border-teal-100">
+            <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-[#0C7C82] to-[#35B4B0] text-white flex items-center justify-center text-xs">
+              <i class="fa-solid fa-user-shield"></i>
+            </div>
+            <span class="text-xs font-bold text-teal-800">ผู้ดูแลระบบ</span>
+            <button id="btnLogout" class="text-rose-500 hover:text-rose-700 text-xs ml-1"><i class="fa-solid fa-power-off"></i></button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main id="mainContent" class="flex-1 p-3 lg:p-6 pb-28 lg:pb-8"></main>
+
+    <footer class="py-5 text-center text-xs text-slate-400 border-t border-slate-200 bg-white">
+      <i class="fa-solid fa-code text-brand"></i>
+      พัฒนาโดย <span class="font-bold text-slate-600">กลุ่มงานเทคโนโลยี พ.ก.</span> • ระบบจองรถโรงเรียน พ.ก.
+    </footer>
+  </div>
+</div>
+
+<!-- Mobile bottom nav -->
+<nav id="bottomNav" class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur border-t border-slate-200
+      px-2 py-1.5 justify-around items-center shadow-[0_-4px_20px_-8px_rgba(0,0,0,.15)]">
+  <button class="bnav flex flex-col items-center gap-[3px] px-3 py-1 rounded-xl text-slate-400" data-page="dashboard">
+    <i class="fa-solid fa-house text-lg"></i><span class="text-[10px] font-semibold">หน้าหลัก</span></button>
+  <button class="bnav flex flex-col items-center gap-[3px] px-3 py-1 rounded-xl text-slate-400" data-page="calendar">
+    <i class="fa-regular fa-calendar text-lg"></i><span class="text-[10px] font-semibold">ปฏิทิน</span></button>
+  <button class="bnav flex flex-col items-center gap-[3px] px-3 py-1 -mt-6 rounded-2xl text-white
+      bg-gradient-to-br from-[#0C7C82] to-[#35B4B0] shadow-lg shadow-teal-800/30" data-page="book">
+    <i class="fa-solid fa-plus text-lg"></i><span class="text-[10px] font-semibold">จองรถ</span></button>
+  <button class="bnav flex flex-col items-center gap-[3px] px-3 py-1 rounded-xl text-slate-400" data-page="list">
+    <i class="fa-solid fa-list-ul text-lg"></i><span class="text-[10px] font-semibold">รายการ</span></button>
+  <button class="bnav flex flex-col items-center gap-[3px] px-3 py-1 rounded-xl text-slate-400" data-page="admin">
+    <i class="fa-solid fa-user-shield text-lg"></i><span class="text-[10px] font-semibold">แอดมิน</span></button>
+</nav>
+
+<!-- Modal root -->
+<div id="modalRoot"></div>
+
+<script>
+/* =========================================================
+   CONSTANTS & UTILITIES
+   ========================================================= */
+const LS_KEY = 'pk_booking_system_v1';
+const API_URL = 'https://script.google.com/macros/s/AKfycbywqjE1IN0BkMrnqo89PQq1TYHDeGqglYqiItOITiUNdmBPwTSjF-B-8S8pmnucKmg/exec';  // ← ใส่ URL จากขั้นตอนที่ 2
+
+async function apiCall(action, data) {
+  const res = await fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ action, data: data || {} })
+  });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  const json = await res.json();
+  if (!json.success) throw new Error(json.error || 'API error');
+  return json.result;
+}
+
+async function loadFromServer() {
+  const d = await apiCall('getAll');
+  DB.bookings  = (d.bookings  || []).map(b => ({
+    ...b,
+    travelers: Number(b.travelers) || 0,
+    passengers: b.passengers || [],
+    passengerFile: b.passengerFile || null
+  }));
+  DB.vehicles  = d.vehicles  || [];
+  DB.drivers   = d.drivers   || [];
+  DB.editLogs  = d.editLogs  || [];
+  DB.settings  = Object.assign(defaultData().settings, d.settings || {});
+  DB.settings.events = Object.assign(defaultData().settings.events, (d.settings||{}).events||{});
+  try { localStorage.setItem(LS_KEY, JSON.stringify(DB)); } catch(e){}
+}
+const THAI_MONTHS = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน',
+                     'กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+const THAI_MONTHS_S = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+const POSITIONS = ['ผู้อำนวยการ','รองผู้อำนวยการ','ครู','บุคลากรทางการศึกษา'];
+const CLASSES = (()=>{ const a=[]; for(let g=1;g<=6;g++) for(let s=1;s<=5;s++) a.push(`ม.${g}/${s}`); return a; })();
+const TRIP_TYPES = ['ไปกลับ','ค้างคืน','อื่น ๆ'];
+
+const $  = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const pad = n => String(n).padStart(2,'0');
+
+function thDate(iso){ if(!iso) return '-'; const d=new Date(iso); if(isNaN(d)) return '-';
+  return `${d.getDate()} ${THAI_MONTHS[d.getMonth()]} ${d.getFullYear()+543}`; }
+function thDateShort(iso){ if(!iso) return '-'; const d=new Date(iso); if(isNaN(d)) return '-';
+  return `${d.getDate()} ${THAI_MONTHS_S[d.getMonth()]} ${String(d.getFullYear()+543).slice(2)}`; }
+function thDateTime(iso){ if(!iso) return '-'; const d=new Date(iso); if(isNaN(d)) return '-';
+  return `${d.getDate()} ${THAI_MONTHS[d.getMonth()]} ${d.getFullYear()+543} เวลา ${pad(d.getHours())}.${pad(d.getMinutes())}น.`; }
+function thDateTimeShort(iso){ if(!iso) return '-'; const d=new Date(iso); if(isNaN(d)) return '-';
+  return `${d.getDate()} ${THAI_MONTHS_S[d.getMonth()]} ${String(d.getFullYear()+543).slice(2)} ${pad(d.getHours())}.${pad(d.getMinutes())}น.`; }
+function toLocalInput(d){ const x=new Date(d); return `${x.getFullYear()}-${pad(x.getMonth()+1)}-${pad(x.getDate())}T${pad(x.getHours())}:${pad(x.getMinutes())}`; }
+function dayKey(d){ const x=new Date(d); return `${x.getFullYear()}-${pad(x.getMonth()+1)}-${pad(x.getDate())}`; }
+
+const Toast = Swal.mixin({
+  toast:true, position:'top-end', showConfirmButton:false, timer:2600, timerProgressBar:true,
+  didOpen:t=>{ t.addEventListener('mouseenter',Swal.stopTimer); t.addEventListener('mouseleave',Swal.resumeTimer); }
+});
+const okToast   = m => Toast.fire({icon:'success', title:m});
+const warnToast = m => Toast.fire({icon:'warning', title:m});
+const errToast  = m => Toast.fire({icon:'error', title:m});
+
+/* =========================================================
+   DATA LAYER
+   ========================================================= */
+function defaultData(){
+  return {
+    bookings: [],
+    vehicles: [
+      { id:'v1', name:'รถตู้โรงเรียน', plate:'นข 5526', seats:'12 ที่นั่ง' },
+      { id:'v2', name:'รถบัสโรงเรียน', plate:'นข 1234', seats:'40 ที่นั่ง' },
+      { id:'v3', name:'รถกระบะโรงเรียน', plate:'บก 7788', seats:'5 ที่นั่ง' }
+    ],
+    drivers: [
+      { id:'d1', name:'นายสมชาย ใจดี', phone:'081-000-0001' },
+      { id:'d2', name:'นายวิชัย ขับดี', phone:'081-000-0002' }
+    ],
+    editLogs: [],
+    settings: {
+      notifEnabled: true,
+      channel: 'none',            // none | telegram
+      telegramToken: '',
+      chatId: '',
+      events: { newBooking:true, approved:true, rejected:true, edited:true }
+    }
+  };
+}
+let DB = null;
+let isAdmin = false;
+let currentPage = 'dashboard';
+let calState = { m:new Date().getMonth(), y:new Date().getFullYear() };
+let listState = { q:'', page:1, per:10 };
+let logState  = { page:1, per:10 };
+
+function loadDB(){
+  try{
+    const raw = localStorage.getItem(LS_KEY);
+    DB = raw ? JSON.parse(raw) : defaultData();
+  }catch(e){ DB = defaultData(); }
+  const d = defaultData();
+  DB.bookings = Array.isArray(DB.bookings) ? DB.bookings : [];
+  DB.vehicles = Array.isArray(DB.vehicles) && DB.vehicles.length ? DB.vehicles : d.vehicles;
+  DB.drivers  = Array.isArray(DB.drivers)  && DB.drivers.length  ? DB.drivers  : d.drivers;
+  DB.editLogs = Array.isArray(DB.editLogs) ? DB.editLogs : [];
+  DB.settings = Object.assign({}, d.settings, DB.settings||{});
+  DB.settings.events = Object.assign({}, d.settings.events, (DB.settings&&DB.settings.events)||{});
+}
+function saveDB(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(DB)); }catch(e){ errToast('บันทึกไม่สำเร็จ พื้นที่จัดเก็บเต็ม'); } }
+
+/* ลบรายการที่ผ่านเวลากลับแล้วอัตโนมัติ */
+function cleanupExpired(){
+  const now = Date.now();
+  const before = DB.bookings.length;
+  DB.bookings = DB.bookings.filter(b=>{
+    const t = new Date(b.returnAt).getTime();
+    if(isNaN(t)) return true;
+    return t > now;
+  });
+  if(DB.bookings.length !== before){ saveDB(); return true; }
+  return false;
+}
+
+/* =========================================================
+   HELPERS
+   ========================================================= */
+const statusMeta = {
+  pending:  { label:'กำลังรอพิจารณา', cls:'b-yellow', color:'#FBC02D', icon:'fa-hourglass-half' },
+  approved: { label:'อนุมัติ',          cls:'b-green',  color:'#22c55e', icon:'fa-circle-check' },
+  rejected: { label:'ไม่อนุมัติ',       cls:'b-red',    color:'#EF5350', icon:'fa-circle-xmark' }
+};
+function statusBadge(s){
+  const m = statusMeta[s] || statusMeta.pending;
+  return `<span class="badge ${m.cls}"><i class="fa-solid ${m.icon}"></i> ${m.label}</span>`;
+}
+function getBooking(id){ return DB.bookings.find(b=>b.id===id); }
+function getVehicle(id){ return DB.vehicles.find(v=>v.id===id); }
+function getDriver(id){ return DB.drivers.find(d=>d.id===id); }
+
+/* รถ/คนขับ ไม่ว่าง เมื่อมีการอนุมัติและยังไม่ถึงเวลากลับ */
+function isVehicleBusy(vehicleId, excludeId){
+  const now = Date.now();
+  return DB.bookings.some(b => b.vehicleId===vehicleId && b.status==='approved'
+    && b.id!==excludeId && new Date(b.returnAt).getTime() > now);
+}
+function isDriverBusy(driverId, excludeId){
+  const now = Date.now();
+  return DB.bookings.some(b => b.driverId===driverId && b.status==='approved'
+    && b.id!==excludeId && new Date(b.returnAt).getTime() > now);
+}
+function busyUntil(vehicleId){
+  const now = Date.now();
+  const list = DB.bookings.filter(b=>b.vehicleId===vehicleId && b.status==='approved' && new Date(b.returnAt).getTime()>now);
+  if(!list.length) return null;
+  return list.sort((a,b)=> new Date(b.returnAt)-new Date(a.returnAt))[0].returnAt;
+}
+
+/* จองที่ทับซ้อนกับวันใดวันหนึ่ง */
+function bookingsOnDate(d){
+  const s = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+  const e = s + 86400000 - 1;
+  return DB.bookings.filter(b=>{
+    const bs = new Date(b.departAt).getTime();
+    const be = new Date(b.returnAt).getTime();
+    return bs <= e && be >= s;
+  }).sort((a,b)=> new Date(a.createdAt) - new Date(b.createdAt));
+}
+/* ลำดับคิวในวันนั้น (1,2,3...) */
+function queueOfDay(booking, d){
+  const arr = bookingsOnDate(d);
+  return arr.findIndex(x=>x.id===booking.id) + 1;
+}
+function pendingCount(){ return DB.bookings.filter(b=>b.status==='pending').length; }
+
+/* =========================================================
+   TELEGRAM NOTIFY
+   ========================================================= */
+async function notifyTelegram(text){
+  const s = DB.settings;
+  if(!s.notifEnabled || s.channel!=='telegram' || !s.telegramToken || !s.chatId) return;
+  try{
+    await fetch(`https://api.telegram.org/bot${s.telegramToken}/sendMessage`,{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ chat_id:s.chatId, text, parse_mode:'HTML' })
+    });
+  }catch(e){ console.warn('Telegram error', e); }
+}
+function pushNotify(eventKey, text){
+  const s = DB.settings;
+  if(!s.notifEnabled) return;
+  if(s.events && s.events[eventKey] === false) return;
+  if(s.channel === 'telegram') notifyTelegram(text);
+}
+
+/* =========================================================
+   EDIT LOG
+   ========================================================= */
+const FIELD_LABELS = {
+  name:'ชื่อ-นามสกุลผู้จอง', position:'ตำแหน่ง', purpose:'วัตถุประสงค์ของการจอง',
+  destination:'สถานที่ที่ไป', departAt:'วันที่ไป', returnAt:'วันที่กลับ',
+  tripType:'ประเภทการเดินทาง', travelers:'จำนวนผู้เดินทาง',
+  passengers:'รายชื่อผู้เดินทาง', status:'สถานะ', vehicleId:'ประเภทรถที่ไป', driverId:'ผู้ขับรถ'
+};
+function logEdit(bookingId, bookingName, changes){
+  if(!changes.length) return;
+  const log = {
+    id: uid(), bookingId, bookingName,
+    at: new Date().toISOString(),
+    by: 'admin',
+    changes
+  };
+  DB.editLogs.unshift(log);
+  if(DB.editLogs.length > 500) DB.editLogs.length = 500;
+  apiCall('addLog', log).catch(e => console.warn('logEdit sync failed', e));
+}
+
+/* =========================================================
+   UI SKELETON
+   ========================================================= */
+function skeletonPage(){
+  return `
+  <div class="space-y-5 fade-in">
+    <div class="skeleton h-24 w-full"></div>
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      ${'<div class="skeleton h-24"></div>'.repeat(4)}
+    </div>
+    <div class="skeleton h-80 w-full"></div>
+  </div>`;
+}
+
+/* =========================================================
+   RENDER ROUTER
+   ========================================================= */
+function navigate(page){
+  currentPage = page;
+  closeSidebar();
+  render(true);
+}
+function render(withSkeleton){
+  const mc = $('#mainContent');
+  const paint = () => {
+    let html = '';
+    switch(currentPage){
+      case 'dashboard': html = pageDashboard(); break;
+      case 'calendar' : html = pageCalendar(); break;
+      case 'book'     : html = pageBook(); break;
+      case 'list'     : html = pageList(); break;
+      case 'stats'    : html = pageStats(); break;
+      case 'admin'    : html = pageAdmin(); break;
+      case 'vehicles' : html = pageVehicles(); break;
+      case 'drivers'  : html = pageDrivers(); break;
+      case 'logs'     : html = pageLogs(); break;
+      case 'settings' : html = pageSettings(); break;
+      default: html = pageDashboard();
+    }
+    mc.innerHTML = `<div class="fade-in">${html}</div>`;
+    afterRender();
+  };
+  if(withSkeleton){ mc.innerHTML = skeletonPage(); setTimeout(paint, 220); } else paint();
+  updateNavActive();
+  updateBadges();
+}
+
+function updateNavActive(){
+  $$('.nav-item').forEach(a=> a.classList.toggle('active', a.dataset.page===currentPage));
+  $$('.bnav').forEach(a=>{
+    const on = a.dataset.page===currentPage;
+    a.classList.toggle('text-brand', on && a.dataset.page!=='book');
+    if(a.dataset.page!=='book') a.classList.toggle('text-slate-400', !on);
+  });
+}
+function updateBadges(){
+  const n = pendingCount();
+  const sb = $('#sideBadge'), bb = $('#bellBadge');
+  [sb,bb].forEach(el=>{
+    if(!el) return;
+    if(n>0){ el.textContent = n; el.classList.remove('hidden'); el.classList.add('flex'); }
+    else el.classList.add('hidden');
+  });
+  const chip = $('#userChip');
+  if(isAdmin) chip.classList.remove('hidden'), chip.classList.add('flex');
+  else chip.classList.add('hidden'), chip.classList.remove('flex');
+  $('#btnLogin').classList.toggle('hidden', isAdmin);
+}
+
+/* =========================================================
+   SHARED COMPONENTS
+   ========================================================= */
+function statCard(icon, label, value, color, bg){
+  return `
+  <div class="card p-4 flex items-center gap-3">
+    <div class="w-12 h-12 rounded-xl flex items-center justify-center text-xl shrink-0" style="background:${bg};color:${color}">
+      <i class="fa-solid ${icon}"></i>
+    </div>
+    <div class="min-w-0">
+      <div class="text-[11px] font-semibold text-slate-500 truncate">${label}</div>
+      <div class="text-2xl font-extrabold leading-tight" style="color:${color}">${value}</div>
+    </div>
+  </div>`;
+}
+
+/* ---------- Calendar ---------- */
+function calendarHTML(compact){
+  const { m, y } = calState;
+  const first = new Date(y, m, 1);
+  const startDow = first.getDay();
+  const days = new Date(y, m+1, 0).getDate();
+  const todayKey = dayKey(new Date());
+  const dow = ['อา','จ','อ','พ','พฤ','ศ','ส'];
+
+  let cells = '';
+  for(let i=0;i<startDow;i++) cells += `<div class="rounded-xl bg-slate-50/60 border border-slate-100 opacity-40 min-h-[104px]"></div>`;
+  for(let d=1; d<=days; d++){
+    const dt = new Date(y, m, d);
+    const k = dayKey(dt);
+    const items = bookingsOnDate(dt);
+    const isToday = k===todayKey;
+    let chips = '';
+    items.slice(0, compact?2:3).forEach((b,i)=>{
+      const meta = statusMeta[b.status]||statusMeta.pending;
+      const vn = b.vehicleId ? (getVehicle(b.vehicleId)?.plate||'') : '';
+      chips += `<span class="chip" style="background:${meta.color}22;color:${meta.color};border-left:3px solid ${meta.color}">
+        ${i+1}. ${esc(b.name.split(' ')[0])}${vn?` • ${esc(vn)}`:''}</span>`;
+    });
+    if(items.length > (compact?2:3)) chips += `<span class="chip text-slate-400">+${items.length-(compact?2:3)} รายการ</span>`;
+
+    cells += `
+      <div class="cal-day rounded-xl border ${isToday?'border-brand ring-2 ring-teal-100':'border-slate-200'} bg-white p-1.5
+                  cursor-pointer hover:bg-teal-50/60 transition" data-day="${k}">
+        <div class="flex items-center justify-between">
+          <span class="text-[11px] font-extrabold ${isToday?'text-white bg-brand rounded-md px-1.5':'text-slate-500'}">${d}</span>
+          ${items.length?`<span class="text-[10px] font-bold text-brand">${items.length}</span>`:''}
+        </div>
+        <div class="mt-1 space-y-[3px]">${chips}</div>
+      </div>`;
+  }
+
+  return `
+  <div class="card p-3 lg:p-5">
+    <div class="flex items-center justify-between mb-3 gap-2 flex-wrap">
+      <div class="flex items-center gap-2">
+        <div class="w-9 h-9 rounded-xl bg-teal-50 text-brand flex items-center justify-center"><i class="fa-regular fa-calendar-days"></i></div>
+        <div>
+          <div class="font-extrabold text-[15px] text-slate-700">ปฏิทินรายการจอง</div>
+          <div class="text-[11px] text-slate-400">คลิกที่วันเพื่อดูรายการจองทั้งหมด</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button class="btn btn-ghost btn-sm" data-cal="prev"><i class="fa-solid fa-chevron-left"></i></button>
+        <div class="font-extrabold text-brand min-w-[150px] text-center text-sm">${THAI_MONTHS[m]} ${y+543}</div>
+        <button class="btn btn-ghost btn-sm" data-cal="next"><i class="fa-solid fa-chevron-right"></i></button>
+        <button class="btn btn-ghost btn-sm" data-cal="today">วันนี้</button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-7 gap-1 lg:gap-1.5 mb-1.5">
+      ${dow.map(x=>`<div class="text-center text-[11px] font-extrabold ${x==='อา'?'text-rose-500':'text-slate-400'} py-1">${x}</div>`).join('')}
+    </div>
+    <div class="grid grid-cols-7 gap-1 lg:gap-1.5">${cells}</div>
+
+    <div class="flex flex-wrap items-center gap-3 mt-4 pt-3 border-t border-slate-100 text-[11px] font-semibold text-slate-500">
+      <span class="flex items-center gap-1.5"><i class="fa-solid fa-square" style="color:#22c55e"></i> อนุมัติ</span>
+      <span class="flex items-center gap-1.5"><i class="fa-solid fa-square" style="color:#FBC02D"></i> กำลังรอพิจารณา</span>
+      <span class="flex items-center gap-1.5"><i class="fa-solid fa-square" style="color:#EF5350"></i> ไม่อนุมัติ</span>
+    </div>
+  </div>`;
+}
+
+/* ---------- Booking summary card (accordion) ---------- */
+function bookingAccordion(b, idx, showQueue, dayRef){
+  const meta = statusMeta[b.status] || statusMeta.pending;
+  const veh = b.vehicleId ? getVehicle(b.vehicleId) : null;
+  const drv = b.driverId ? getDriver(b.driverId) : null;
+  const q = dayRef ? queueOfDay(b, dayRef) : idx+1;
+  const tripText = b.tripType==='อื่น ๆ' ? `อื่น ๆ (${esc(b.tripTypeOther||'-')})` : esc(b.tripType);
+
+  return `
+  <div class="acc card overflow-hidden mb-2.5" data-acc>
+    <div class="acc-head flex items-start gap-3 p-3 cursor-pointer hover:bg-slate-50/70" data-acc-toggle>
+      <div class="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-extrabold shrink-0"
+           style="background:${meta.color}1f;color:${meta.color}">${q}</div>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="font-extrabold text-[14px] text-slate-800 truncate">${esc(b.name)}</span>
+          ${statusBadge(b.status)}
+        </div>
+        <div class="text-[12px] text-slate-500 mt-0.5 truncate">
+          <i class="fa-solid fa-location-dot text-brand"></i> ${esc(b.destination)} • ${esc(b.position)}
+        </div>
+        <div class="text-[11px] text-slate-400 mt-0.5">
+          <i class="fa-regular fa-clock"></i> ${thDateTimeShort(b.departAt)} → ${thDateTimeShort(b.returnAt)}
+        </div>
+      </div>
+      <i class="fa-solid fa-chevron-down text-slate-400 text-xs mt-1"></i>
+    </div>
+
+    <div class="acc-body px-3 pb-3">
+      <div class="grid sm:grid-cols-2 gap-x-4 gap-y-2 text-[12.5px] bg-slate-50 rounded-xl p-3">
+        <div><span class="text-slate-400 font-semibold">วันที่จอง:</span> <span class="font-semibold">${thDate(b.createdAt)}</span></div>
+        <div><span class="text-slate-400 font-semibold">ตำแหน่ง:</span> <span class="font-semibold">${esc(b.position)}</span></div>
+        <div class="sm:col-span-2"><span class="text-slate-400 font-semibold">วัตถุประสงค์:</span> <span class="font-semibold">${esc(b.purpose)}</span></div>
+        <div class="sm:col-span-2"><span class="text-slate-400 font-semibold">สถานที่ที่ไป:</span> <span class="font-semibold">${esc(b.destination)}</span></div>
+        <div><span class="text-slate-400 font-semibold">วันที่ไป:</span> <span class="font-semibold">${thDateTime(b.departAt)}</span></div>
+        <div><span class="text-slate-400 font-semibold">วันที่กลับ:</span> <span class="font-semibold">${thDateTime(b.returnAt)}</span></div>
+        <div><span class="text-slate-400 font-semibold">ประเภทการเดินทาง:</span> <span class="font-semibold">${tripText}</span></div>
+        <div><span class="text-slate-400 font-semibold">จำนวนผู้เดินทาง:</span> <span class="font-semibold">${esc(b.travelers)} คน</span></div>
+
+        <div class="sm:col-span-2">
+          <span class="text-slate-400 font-semibold">รายชื่อผู้เดินทาง:</span>
+          ${renderPassengers(b)}
+        </div>
+
+        <div class="sm:col-span-2 grid sm:grid-cols-2 gap-2 pt-1">
+          <div class="rounded-xl p-2.5" style="background:${veh?'#ccfbf1':'#f1f5f9'}">
+            <div class="text-[10.5px] font-bold text-slate-500">ประเภทรถที่ไป</div>
+            <div class="text-[15px] font-extrabold ${veh?'text-teal-700':'text-slate-400'}">
+              ${veh ? esc(veh.plate)+' • '+esc(veh.name) : 'รอแอดมินกำหนด'}
+            </div>
+          </div>
+          <div class="rounded-xl p-2.5" style="background:${drv?'#ede9fe':'#f1f5f9'}">
+            <div class="text-[10.5px] font-bold text-slate-500">ผู้ขับรถ</div>
+            <div class="text-[15px] font-extrabold ${drv?'text-violet-700':'text-slate-400'}">
+              ${drv ? esc(drv.name) : 'รอแอดมินกำหนด'}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+function renderPassengers(b){
+  const f = b.passengerFile || (b.passengerFileUrl ? {
+    name: b.passengerFileName, type: b.passengerFileType, url: b.passengerFileUrl
+  } : null);
+  if(f){
+    const isImg = (f.type||'').startsWith('image/');
+    return `<div class="mt-1 flex items-center gap-2 flex-wrap">
+      <button class="btn btn-ghost btn-sm" data-action="view-file" data-id="${b.id}">
+        <i class="fa-solid ${isImg?'fa-image':'fa-file-pdf'}"></i> ดูไฟล์: ${esc(f.name)}
+      </button></div>`;
+  }
+  if(!b.passengers || !b.passengers.length) return `<span class="text-slate-400">-</span>`;
+  return `<ol class="mt-1 space-y-0.5 list-decimal list-inside">
+    ${b.passengers.map(p=>`<li class="font-semibold">${esc(p.name)}
+      ${p.class?`<span class="badge b-blue ml-1">${esc(p.class)}</span>`:''}
+      ${p.position?`<span class="badge b-plum ml-1">${esc(p.position)}</span>`:''}</li>`).join('')}
+  </ol>`;
+}
+
+/* =========================================================
+   PAGE 1: DASHBOARD
+   ========================================================= */
+function pageDashboard(){
+  const bs = DB.bookings;
+  const total = bs.length;
+  const pending = bs.filter(b=>b.status==='pending').length;
+  const approved = bs.filter(b=>b.status==='approved').length;
+  const rejected = bs.filter(b=>b.status==='rejected').length;
+
+  return `
+  <div class="space-y-5">
+    <div class="card p-4 lg:p-5 bg-gradient-to-br from-[#0C7C82] to-[#35B4B0] text-white border-0">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center text-2xl"><i class="fa-solid fa-bus-simple"></i></div>
+        <div>
+          <div class="font-extrabold text-lg leading-tight">ระบบจองรถโรงเรียน พ.ก.</div>
+          <div class="text-xs opacity-90">ยินดีต้อนรับ • ข้อมูล ณ วันที่ ${thDate(new Date().toISOString())}</div>
+        </div>
+        <button class="btn ml-auto bg-white/20 text-white hover:bg-white/30 hidden sm:inline-flex" data-goto="book">
+          <i class="fa-solid fa-plus"></i> จองรถ
+        </button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
+      ${statCard('fa-calendar-check','การจองทั้งหมด', total, '#0C7C82', '#e0f2f1')}
+      ${statCard('fa-hourglass-half','รอพิจารณา', pending, '#F57C00', '#fff8e1')}
+      ${statCard('fa-circle-check','อนุมัติแล้ว', approved, '#15803d', '#dcfce7')}
+      ${statCard('fa-circle-xmark','ไม่อนุมัติ', rejected, '#D32F2F', '#fee2e2')}
+    </div>
+
+    ${calendarHTML(false)}
+
+    <div class="card p-4 lg:p-5">
+      <div class="flex items-center gap-2 mb-3 flex-wrap">
+        <div class="w-9 h-9 rounded-xl bg-teal-50 text-brand flex items-center justify-center"><i class="fa-solid fa-clock-rotate-left"></i></div>
+        <div class="font-extrabold text-[15px] text-slate-700">รายการจองล่าสุด</div>
+        <span class="badge b-teal">${total} รายการ</span>
+        <div class="ml-auto flex items-center gap-2 w-full sm:w-auto">
+          <div class="relative flex-1 sm:w-64">
+            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+            <input id="searchInput" class="inp pl-9" placeholder="ค้นหา ชื่อ / สถานที่ / วัตถุประสงค์..." value="${esc(listState.q)}">
+          </div>
+        </div>
+      </div>
+      <div id="recentList">${recentListHTML()}</div>
+    </div>
+  </div>`;
+}
+
+function filteredBookings(){
+  const q = listState.q.trim().toLowerCase();
+  let arr = [...DB.bookings].sort((a,b)=> new Date(b.createdAt)-new Date(a.createdAt));
+  if(q){
+    arr = arr.filter(b =>
+      (b.name||'').toLowerCase().includes(q) ||
+      (b.destination||'').toLowerCase().includes(q) ||
+      (b.purpose||'').toLowerCase().includes(q) ||
+      (b.position||'').toLowerCase().includes(q) ||
+      (b.tripType||'').toLowerCase().includes(q)
+    );
+  }
+  return arr;
+}
+function recentListHTML(){
+  const arr = filteredBookings();
+  const per = listState.per;
+  const totalPages = Math.max(1, Math.ceil(arr.length/per));
+  if(listState.page > totalPages) listState.page = totalPages;
+  const start = (listState.page-1)*per;
+  const slice = arr.slice(start, start+per);
+
+  if(!slice.length){
+    return `<div class="text-center py-12 text-slate-400">
+      <i class="fa-regular fa-folder-open text-4xl mb-2"></i>
+      <div class="text-sm font-semibold">ไม่พบรายการจอง</div></div>`;
+  }
+
+  return `
+  <div>${slice.map((b,i)=> bookingAccordion(b, start+i, false, null)).join('')}</div>
+  <div class="flex items-center justify-between mt-3 flex-wrap gap-2">
+    <div class="text-[12px] text-slate-500 font-semibold">
+      แสดง ${start+1}-${Math.min(start+per, arr.length)} จาก ${arr.length} รายการ
+    </div>
+    <div class="flex items-center gap-1">
+      <button class="btn btn-ghost btn-sm" data-page-nav="prev" ${listState.page<=1?'disabled style="opacity:.4"':''}>
+        <i class="fa-solid fa-chevron-left"></i></button>
+      <span class="text-[12px] font-bold text-brand px-2">หน้า ${listState.page}/${totalPages}</span>
+      <button class="btn btn-ghost btn-sm" data-page-nav="next" ${listState.page>=totalPages?'disabled style="opacity:.4"':''}>
+        <i class="fa-solid fa-chevron-right"></i></button>
+    </div>
+  </div>`;
+}
+
+/* =========================================================
+   PAGE: CALENDAR
+   ========================================================= */
+function pageCalendar(){
+  return `
+  <div class="space-y-4">
+    <div class="flex items-center gap-3">
+      <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#0C7C82] to-[#35B4B0] text-white flex items-center justify-center text-lg">
+        <i class="fa-regular fa-calendar-days"></i></div>
+      <div>
+        <div class="font-extrabold text-lg text-slate-700">ปฏิทินการจองรถโรงเรียน พ.ก.</div>
+        <div class="text-xs text-slate-400">คลิกวันที่เพื่อดูรายการจองทั้งหมดของวันนั้น</div>
+      </div>
+      <button class="btn btn-primary ml-auto hidden sm:inline-flex" data-goto="book"><i class="fa-solid fa-plus"></i> จองรถ</button>
+    </div>
+    ${calendarHTML(false)}
+  </div>`;
+}
+
+/* =========================================================
+   PAGE: BOOK FORM
+   ========================================================= */
+function pageBook(){
+  const now = new Date();
+  const minVal = toLocalInput(now);
+  return `
+  <div class="max-w-5xl mx-auto space-y-4">
+    <div class="flex items-center gap-3">
+      <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#0C7C82] to-[#35B4B0] text-white flex items-center justify-center text-lg">
+        <i class="fa-solid fa-square-plus"></i></div>
+      <div>
+        <div class="font-extrabold text-lg text-slate-700">แบบฟอร์มจองรถโรงเรียน พ.ก.</div>
+        <div class="text-xs text-slate-400">กรอกข้อมูลให้ครบถ้วนเพื่อส่งคำขอจองรถ</div>
+      </div>
+    </div>
+
+    <form id="bookForm" class="card p-4 lg:p-6 space-y-5">
+
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          <label class="lbl">ชื่อ-นามสกุลผู้จอง <span class="text-rose-500">*</span></label>
+          <input class="inp" id="f_name" required placeholder="เช่น นายสมศักดิ์ รักเรียน">
+        </div>
+        <div>
+          <label class="lbl">ตำแหน่ง <span class="text-rose-500">*</span></label>
+          <select class="inp" id="f_position" required>
+            <option value="">-- เลือกตำแหน่ง --</option>
+            ${POSITIONS.map(p=>`<option>${p}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          <label class="lbl">วัตถุประสงค์ของการจอง <span class="text-rose-500">*</span></label>
+          <input class="inp" id="f_purpose" required placeholder="เช่น นำนักเรียนไปแข่งขันวิชาการ">
+        </div>
+        <div>
+          <label class="lbl">สถานที่ที่ไป <span class="text-rose-500">*</span></label>
+          <input class="inp" id="f_destination" required placeholder="เช่น มหาวิทยาลัยเชียงใหม่">
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-4">
+        <div>
+          <label class="lbl">วันที่จอง (อัตโนมัติ)</label>
+          <input class="inp" value="${thDate(now.toISOString())}" readonly>
+        </div>
+        <div>
+          <label class="lbl">วันที่ไป + เวลา <span class="text-rose-500">*</span></label>
+          <input type="datetime-local" class="inp" id="f_depart" min="${minVal}" required>
+        </div>
+        <div>
+          <label class="lbl">วันที่กลับ + เวลา <span class="text-rose-500">*</span></label>
+          <input type="datetime-local" class="inp" id="f_return" min="${minVal}" required>
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-4">
+        <div>
+          <label class="lbl">ประเภทการเดินทาง <span class="text-rose-500">*</span></label>
+          <select class="inp" id="f_trip" required>
+            <option value="">-- เลือกประเภท --</option>
+            ${TRIP_TYPES.map(t=>`<option>${t}</option>`).join('')}
+          </select>
+        </div>
+        <div id="tripOtherWrap" class="hidden">
+          <label class="lbl">ระบุประเภทอื่น ๆ <span class="text-rose-500">*</span></label>
+          <input class="inp" id="f_tripOther" placeholder="ระบุ...">
+        </div>
+        <div>
+          <label class="lbl">จำนวนผู้เดินทาง (คน) <span class="text-rose-500">*</span></label>
+          <input type="number" min="1" class="inp" id="f_travelers" required placeholder="เช่น 10">
+        </div>
+      </div>
+
+      <!-- ผู้เดินทาง -->
+      <div class="rounded-2xl border border-slate-200 p-4 bg-slate-50/60">
+        <div class="flex items-center gap-2 flex-wrap mb-3">
+          <div class="font-extrabold text-[14px] text-slate-700"><i class="fa-solid fa-users text-brand"></i> รายชื่อผู้เดินทาง <span class="text-rose-500">*</span></div>
+          <div class="ml-auto flex items-center gap-2 text-[12px] font-bold">
+            <label class="flex items-center gap-1.5 cursor-pointer px-3 py-1.5 rounded-xl bg-white border border-slate-200 has-[:checked]:border-brand has-[:checked]:bg-teal-50">
+              <input type="radio" name="pmode" value="list" checked class="accent-teal-600"> กรอกเป็นรายชื่อ
+            </label>
+            <label class="flex items-center gap-1.5 cursor-pointer px-3 py-1.5 rounded-xl bg-white border border-slate-200 has-[:checked]:border-brand has-[:checked]:bg-teal-50">
+              <input type="radio" name="pmode" value="file" class="accent-teal-600"> แนบไฟล์
+            </label>
+          </div>
+        </div>
+
+        <div id="paneList">
+          <div id="passengerRows" class="space-y-2"></div>
+          <button type="button" id="btnAddPassenger" class="btn btn-ghost btn-sm mt-2">
+            <i class="fa-solid fa-user-plus"></i> เพิ่มรายชื่อผู้เดินทาง
+          </button>
+        </div>
+
+        <div id="paneFile" class="hidden">
+          <label class="lbl">แนบไฟล์รายชื่อ (PNG / JPG / PDF)</label>
+          <input type="file" id="f_file" accept=".png,.jpg,.jpeg,.pdf,image/png,image/jpeg,application/pdf"
+                 class="inp file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-teal-50 file:text-teal-700 file:font-semibold">
+          <p class="text-[11px] text-slate-400 mt-1">รองรับไฟล์ขนาดไม่เกิน 2 MB</p>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+        <button type="reset" class="btn btn-ghost" id="btnResetForm"><i class="fa-solid fa-rotate-left"></i> ล้างฟอร์ม</button>
+        <button type="submit" class="btn btn-primary" id="btnSubmitBook">
+          <i class="fa-solid fa-paper-plane"></i> ส่งคำขอจองรถ
+        </button>
+      </div>
+    </form>
+  </div>`;
+}
+
+function passengerRowHTML(){
+  return `
+  <div class="passenger-row grid grid-cols-12 gap-2 items-center" data-row>
+    <input class="inp col-span-12 sm:col-span-5 p-name" placeholder="ชื่อ-นามสกุลผู้เดินทาง">
+    <select class="inp col-span-6 sm:col-span-3 p-class">
+      <option value="">ชั้น (ถ้าเป็นนักเรียน)</option>
+      ${CLASSES.map(c=>`<option>${c}</option>`).join('')}
+    </select>
+    <select class="inp col-span-5 sm:col-span-3 p-pos">
+      <option value="">ตำแหน่ง (ถ้าเป็นบุคลากร)</option>
+      ${POSITIONS.map(p=>`<option>${p}</option>`).join('')}
+    </select>
+    <button type="button" class="col-span-1 h-10 rounded-xl bg-rose-50 text-rose-500 hover:bg-rose-100 flex items-center justify-center" data-remove-row>
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+  </div>`;
+}
+
+/* =========================================================
+   PAGE: LIST (ทั้งหมด)
+   ========================================================= */
+function pageList(){
+  return `
+  <div class="space-y-4">
+    <div class="flex items-center gap-3">
+      <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#0C7C82] to-[#35B4B0] text-white flex items-center justify-center text-lg">
+        <i class="fa-solid fa-list-ul"></i></div>
+      <div>
+        <div class="font-extrabold text-lg text-slate-700">รายการจองรถโรงเรียน พ.ก.</div>
+        <div class="text-xs text-slate-400">แสดงทีละ 10 รายการ • ล่าสุดอยู่ด้านบน</div>
+      </div>
+    </div>
+
+    <div class="card p-4">
+      <div class="flex flex-col sm:flex-row gap-2">
+        <div class="relative flex-1">
+          <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+          <input id="searchInput" class="inp pl-9" placeholder="ค้นหา ชื่อ / สถานที่ / วัตถุประสงค์ / ตำแหน่ง..." value="${esc(listState.q)}">
+        </div>
+        <button class="btn btn-primary" id="btnSearch"><i class="fa-solid fa-magnifying-glass"></i> ค้นหา</button>
+        <button class="btn btn-ghost" id="btnClearSearch"><i class="fa-solid fa-eraser"></i> ล้าง</button>
+      </div>
+    </div>
+
+    <div id="recentList" class="card p-4">${recentListHTML()}</div>
+  </div>`;
+}
+
+/* =========================================================
+   PAGE: STATS
+   ========================================================= */
+function pageStats(){
+  const total = DB.bookings.length;
+  const pending = DB.bookings.filter(b=>b.status==='pending').length;
+  const approved = DB.bookings.filter(b=>b.status==='approved').length;
+  const rejected = DB.bookings.filter(b=>b.status==='rejected').length;
+
+  // 12 เดือนล่าสุด
+  const labels=[], values=[];
+  const now = new Date();
+  for(let i=11;i>=0;i--){
+    const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
+    labels.push(THAI_MONTHS_S[d.getMonth()]);
+    values.push(DB.bookings.filter(b=>{
+      const c = new Date(b.createdAt);
+      return c.getFullYear()===d.getFullYear() && c.getMonth()===d.getMonth();
+    }).length);
+  }
+
+  // สถานที่ยอดนิยม
+  const destMap = {};
+  DB.bookings.forEach(b=>{ destMap[b.destination] = (destMap[b.destination]||0)+1; });
+  const topDest = Object.entries(destMap).sort((a,b)=>b[1]-a[1]).slice(0,5);
+
+  return `
+  <div class="space-y-5">
+    <div class="flex items-center gap-3">
+      <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#0C7C82] to-[#35B4B0] text-white flex items-center justify-center text-lg">
+        <i class="fa-solid fa-chart-column"></i></div>
+      <div>
+        <div class="font-extrabold text-lg text-slate-700">สถิติการจองรถโรงเรียน พ.ก.</div>
+        <div class="text-xs text-slate-400">ภาพรวมจำนวนการจองและสถิติรายเดือน</div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
+      ${statCard('fa-calendar-check','จำนวนการจองทั้งหมด', total, '#0C7C82', '#e0f2f1')}
+      ${statCard('fa-hourglass-half','รอพิจารณา', pending, '#F57C00', '#fff8e1')}
+      ${statCard('fa-circle-check','อนุมัติแล้ว', approved, '#15803d', '#dcfce7')}
+      ${statCard('fa-circle-xmark','ไม่อนุมัติ', rejected, '#D32F2F', '#fee2e2')}
+    </div>
+
+    <div class="card p-4 lg:p-5">
+      <div class="font-extrabold text-[15px] text-slate-700 mb-3"><i class="fa-solid fa-chart-simple text-brand"></i> สถิติการจองรายเดือน (12 เดือนล่าสุด)</div>
+      <div><canvas id="monthChart" style="width:100%;height:260px"></canvas></div>
+    </div>
+
+    <div class="card p-4 lg:p-5">
+      <div class="font-extrabold text-[15px] text-slate-700 mb-3"><i class="fa-solid fa-location-dot text-brand"></i> สถานที่ที่ไปบ่อยที่สุด</div>
+      ${topDest.length ? topDest.map(([d,c])=>`
+        <div class="flex items-center gap-3 py-2 border-b border-slate-100 last:border-0">
+          <div class="flex-1 text-[13px] font-semibold text-slate-700 truncate">${esc(d)}</div>
+          <div class="w-40 h-2 rounded-full bg-slate-100 overflow-hidden hidden sm:block">
+            <div class="h-full rounded-full" style="width:${(c/topDest[0][1]*100)}%;background:linear-gradient(90deg,#0C7C82,#35B4B0)"></div>
+          </div>
+          <span class="badge b-teal">${c} ครั้ง</span>
+        </div>`).join('')
+      : `<div class="text-center text-slate-400 py-6 text-sm">ยังไม่มีข้อมูล</div>`}
+    </div>
+  </div>`;
+}
+
+function drawMonthChart(){
+  const cv = document.getElementById('monthChart');
+  if(!cv) return;
+  const labels=[], values=[];
+  const now = new Date();
+  for(let i=11;i>=0;i--){
+    const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
+    labels.push(THAI_MONTHS_S[d.getMonth()]);
+    values.push(DB.bookings.filter(b=>{
+      const c = new Date(b.createdAt);
+      return c.getFullYear()===d.getFullYear() && c.getMonth()===d.getMonth();
+    }).length);
+  }
+  const ctx = cv.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const W = cv.clientWidth, H = 260;
+  cv.width = W*dpr; cv.height = H*dpr;
+  cv.style.height = H+'px';
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,W,H);
+
+  const padL=38, padR=12, padT=18, padB=34;
+  const cw = W-padL-padR, ch = H-padT-padB;
+  const max = Math.max(1, ...values);
+  const steps = 4;
+
+  // grid
+  ctx.strokeStyle='#eef2f4'; ctx.lineWidth=1;
+  ctx.fillStyle='#94a3b8'; ctx.font='11px Sarabun'; ctx.textAlign='right';
+  for(let i=0;i<=steps;i++){
+    const y = padT + ch - (ch*i/steps);
+    ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(W-padR,y); ctx.stroke();
+    ctx.fillText(Math.round(max*i/steps), padL-8, y+4);
+  }
+
+  const bw = cw/values.length;
+  values.forEach((v,i)=>{
+    const bh = (v/max)*ch;
+    const x = padL + i*bw + bw*0.22;
+    const y = padT + ch - bh;
+    const w = bw*0.56;
+    const g = ctx.createLinearGradient(0,y,0,padT+ch);
+    g.addColorStop(0,'#35B4B0'); g.addColorStop(1,'#0C7C82');
+    ctx.fillStyle = g;
+    const r = Math.min(6, w/2, bh/2);
+    ctx.beginPath();
+    ctx.moveTo(x, padT+ch);
+    ctx.lineTo(x, y+r);
+    ctx.quadraticCurveTo(x, y, x+r, y);
+    ctx.lineTo(x+w-r, y);
+    ctx.quadraticCurveTo(x+w, y, x+w, y+r);
+    ctx.lineTo(x+w, padT+ch);
+    ctx.closePath(); ctx.fill();
+
+    ctx.fillStyle='#64748b'; ctx.font='10.5px Sarabun'; ctx.textAlign='center';
+    ctx.fillText(labels[i], x+w/2, H-12);
+    if(v>0){
+      ctx.fillStyle='#0C7C82'; ctx.font='bold 11px Sarabun';
+      ctx.fillText(v, x+w/2, y-5);
+    }
+  });
+}
+
+/* =========================================================
+   PAGE: ADMIN MANAGE
+   ========================================================= */
+function pageAdmin(){
+  if(!isAdmin) return loginRequiredHTML('อนุมัติ / จัดการการจอง');
+  const arr = [...DB.bookings].sort((a,b)=> new Date(b.createdAt)-new Date(a.createdAt));
+
+  const rows = arr.map(b=>{
+    const veh = b.vehicleId ? getVehicle(b.vehicleId) : null;
+    const drv = b.driverId ? getDriver(b.driverId) : null;
+    return `
+    <tr>
+      <td class="font-semibold whitespace-nowrap">${thDateShort(b.createdAt)}</td>
+      <td>
+        <div class="font-bold text-slate-800">${esc(b.name)}</div>
+        <div class="text-[11px] text-slate-400">${esc(b.position)}</div>
+      </td>
+      <td class="max-w-[180px]">
+        <div class="truncate font-semibold">${esc(b.destination)}</div>
+        <div class="text-[11px] text-slate-400 truncate">${esc(b.purpose)}</div>
+      </td>
+      <td class="whitespace-nowrap text-[11.5px]">
+        <div><i class="fa-solid fa-arrow-right text-emerald-500"></i> ${thDateTimeShort(b.departAt)}</div>
+        <div><i class="fa-solid fa-arrow-left text-rose-500"></i> ${thDateTimeShort(b.returnAt)}</div>
+      </td>
+      <td class="text-center font-bold">${esc(b.travelers)}</td>
+      <td>${statusBadge(b.status)}</td>
+      <td>
+        <select class="inp !py-1 !px-2 !text-[12px] min-w-[150px]" data-veh-select="${b.id}">
+          <option value="">-- เลือกรถ --</option>
+          ${DB.vehicles.map(v=>{
+            const busy = isVehicleBusy(v.id, b.id);
+            return `<option value="${v.id}" ${b.vehicleId===v.id?'selected':''} ${busy?'disabled':''}>
+              ${esc(v.plate)} • ${esc(v.name)}${busy?' (ไม่ว่าง)':''}</option>`;
+          }).join('')}
+        </select>
+        ${veh?`<div class="text-[12px] font-extrabold text-teal-700 mt-1">${esc(veh.plate)}</div>`:''}
+      </td>
+      <td>
+        <select class="inp !py-1 !px-2 !text-[12px] min-w-[140px]" data-drv-select="${b.id}">
+          <option value="">-- เลือกผู้ขับ --</option>
+          ${DB.drivers.map(d=>{
+            const busy = isDriverBusy(d.id, b.id);
+            return `<option value="${d.id}" ${b.driverId===d.id?'selected':''} ${busy?'disabled':''}>
+              ${esc(d.name)}${busy?' (ไม่ว่าง)':''}</option>`;
+          }).join('')}
+        </select>
+        ${drv?`<div class="text-[12px] font-extrabold text-violet-700 mt-1">${esc(drv.name)}</div>`:''}
+      </td>
+      <td class="whitespace-nowrap">
+        <div class="flex items-center gap-1 flex-wrap">
+          <button class="btn btn-sm bg-emerald-500 text-white hover:bg-emerald-600" data-action="set-status" data-id="${b.id}" data-status="approved" title="อนุมัติ"><i class="fa-solid fa-check"></i></button>
+          <button class="btn btn-sm bg-rose-500 text-white hover:bg-rose-600" data-action="set-status" data-id="${b.id}" data-status="rejected" title="ไม่อนุมัติ"><i class="fa-solid fa-xmark"></i></button>
+          <button class="btn btn-sm bg-amber-400 text-amber-900 hover:bg-amber-500" data-action="set-status" data-id="${b.id}" data-status="pending" title="รอพิจารณา"><i class="fa-solid fa-hourglass-half"></i></button>
+          <button class="btn btn-sm btn-ghost" data-action="view-booking" data-id="${b.id}" title="ดู"><i class="fa-solid fa-eye"></i></button>
+          <button class="btn btn-sm bg-sky-500 text-white hover:bg-sky-600" data-action="edit-booking" data-id="${b.id}" title="แก้ไข"><i class="fa-solid fa-pen"></i></button>
+          <button class="btn btn-sm btn-danger" data-action="del-booking" data-id="${b.id}" title="ยกเลิก/ลบ"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  return `
+  <div class="space-y-4">
+    <div class="flex items-center gap-3 flex-wrap">
+      <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#0C7C82] to-[#35B4B0] text-white flex items-center justify-center text-lg">
+        <i class="fa-solid fa-clipboard-check"></i></div>
+      <div>
+        <div class="font-extrabold text-lg text-slate-700">อนุมัติ / จัดการการจอง</div>
+        <div class="text-xs text-slate-400">กำหนดสถานะ ประเภทรถ และผู้ขับรถ</div>
+      </div>
+      <span class="badge b-yellow ml-auto"><i class="fa-solid fa-hourglass-half"></i> รอพิจารณา ${pendingCount()} รายการ</span>
+    </div>
+
+    <div class="card p-3 lg:p-4">
+      <div class="overflow-auto max-h-[65vh] rounded-xl border border-slate-100">
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th>วันที่จอง</th><th>ผู้จอง</th><th>ปลายทาง</th><th>ช่วงเวลา</th>
+              <th class="text-center">ผู้เดินทาง</th><th>สถานะ</th><th>ประเภทรถที่ไป</th><th>ผู้ขับรถ</th><th>จัดการ</th>
+            </tr>
+          </thead>
+          <tbody>${rows || `<tr><td colspan="9" class="text-center text-slate-400 py-10">ยังไม่มีรายการจอง</td></tr>`}</tbody>
+        </table>
+      </div>
+    </div>
+  </div>`;
+}
+
+function loginRequiredHTML(title){
+  return `
+  <div class="card p-10 text-center max-w-md mx-auto mt-10">
+    <div class="w-16 h-16 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center text-3xl mx-auto mb-3">
+      <i class="fa-solid fa-lock"></i></div>
+    <div class="font-extrabold text-lg text-slate-700">ต้องเข้าสู่ระบบผู้ดูแล</div>
+    <p class="text-sm text-slate-400 mt-1 mb-4">เมนู "${esc(title)}" จำกัดสิทธิ์สำหรับผู้ดูแลระบบเท่านั้น</p>
+    <button class="btn btn-primary" data-action="open-login"><i class="fa-solid fa-right-to-bracket"></i> เข้าสู่ระบบ</button>
+  </div>`;
+}
+
+/* =========================================================
+   PAGE: VEHICLES
+   ========================================================= */
+function pageVehicles(){
+  if(!isAdmin) return loginRequiredHTML('ประเภทรถที่ไป');
+  const rows = DB.vehicles.map(v=>{
+    const busy = isVehicleBusy(v.id, null);
+    const until = busyUntil(v.id);
+    const activeBooking = DB.bookings.find(b=>b.vehicleId===v.id && b.status==='approved' && new Date(b.returnAt).getTime()>Date.now());
+    return `
+    <tr>
+      <td class="font-extrabold text-slate-800">${esc(v.plate)}</td>
+      <td>${esc(v.name)}</td>
+      <td>${esc(v.seats||'-')}</td>
+      <td>
+        ${busy
+          ? `<span class="badge b-red"><i class="fa-solid fa-circle-xmark"></i> ไม่ว่าง</span>
+             <div class="text-[11px] text-slate-400 mt-1">ว่างอีกครั้ง ${thDateTimeShort(until)}</div>`
+          : `<span class="badge b-green"><i class="fa-solid fa-circle-check"></i> ว่าง</span>`}
+      </td>
+      <td class="text-[12px] text-slate-500">${activeBooking ? esc(activeBooking.name)+' • '+esc(activeBooking.destination) : '-'}</td>
+      <td class="whitespace-nowrap">
+        <button class="btn btn-sm bg-sky-500 text-white hover:bg-sky-600" data-action="edit-vehicle" data-id="${v.id}"><i class="fa-solid fa-pen"></i></button>
+        <button class="btn btn-sm btn-danger" data-action="del-vehicle" data-id="${v.id}"><i class="fa-solid fa-trash"></i></button>
+      </td>
+    </tr>`;
+  }).join('');
+
+  return `
+  <div class="space-y-4">
+    <div class="flex items-center gap-3">
+      <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#0C7C82] to-[#35B4B0] text-white flex items-center justify-center text-lg">
+        <i class="fa-solid fa-truck-front"></i></div>
+      <div>
+        <div class="font-extrabold text-lg text-slate-700">จัดการประเภทรถที่ไป</div>
+        <div class="text-xs text-slate-400">เพิ่ม / แก้ไข / ลบ รถของโรงเรียน</div>
+      </div>
+      <button class="btn btn-primary ml-auto" data-action="add-vehicle"><i class="fa-solid fa-plus"></i> เพิ่มรถ</button>
+    </div>
+
+    <div class="card p-3 lg:p-4">
+      <div class="overflow-auto rounded-xl border border-slate-100">
+        <table class="tbl">
+          <thead><tr><th>ทะเบียน</th><th>ชื่อรถ</th><th>จำนวนที่นั่ง</th><th>สถานะรถ</th><th>ใช้งานล่าสุด</th><th>จัดการ</th></tr></thead>
+          <tbody>${rows || `<tr><td colspan="6" class="text-center text-slate-400 py-10">ยังไม่มีข้อมูลรถ</td></tr>`}</tbody>
+        </table>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* =========================================================
+   PAGE: DRIVERS
+   ========================================================= */
+function pageDrivers(){
+  if(!isAdmin) return loginRequiredHTML('รายชื่อผู้ขับรถ');
+  const rows = DB.drivers.map(d=>{
+    const busy = isDriverBusy(d.id, null);
+    return `
+    <tr>
+      <td class="font-extrabold text-slate-800">${esc(d.name)}</td>
+      <td>${esc(d.phone||'-')}</td>
+      <td>${busy
+        ? `<span class="badge b-red"><i class="fa-solid fa-circle-xmark"></i> กำลังปฏิบัติงาน</span>`
+        : `<span class="badge b-green"><i class="fa-solid fa-circle-check"></i> ว่าง</span>`}</td>
+      <td class="whitespace-nowrap">
+        <button class="btn btn-sm bg-sky-500 text-white hover:bg-sky-600" data-action="edit-driver" data-id="${d.id}"><i class="fa-solid fa-pen"></i></button>
+        <button class="btn btn-sm btn-danger" data-action="del-driver" data-id="${d.id}"><i class="fa-solid fa-trash"></i></button>
+      </td>
+    </tr>`;
+  }).join('');
+
+  return `
+  <div class="space-y-4">
+    <div class="flex items-center gap-3">
+      <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#0C7C82] to-[#35B4B0] text-white flex items-center justify-center text-lg">
+        <i class="fa-solid fa-id-card"></i></div>
+      <div>
+        <div class="font-extrabold text-lg text-slate-700">จัดการรายชื่อผู้ขับรถ</div>
+        <div class="text-xs text-slate-400">เพิ่ม / แก้ไข / ลบ ผู้ขับรถของโรงเรียน</div>
+      </div>
+      <button class="btn btn-primary ml-auto" data-action="add-driver"><i class="fa-solid fa-plus"></i> เพิ่มผู้ขับรถ</button>
+    </div>
+
+    <div class="card p-3 lg:p-4">
+      <div class="overflow-auto rounded-xl border border-slate-100">
+        <table class="tbl">
+          <thead><tr><th>ชื่อ-นามสกุล</th><th>เบอร์โทร</th><th>สถานะ</th><th>จัดการ</th></tr></thead>
+          <tbody>${rows || `<tr><td colspan="4" class="text-center text-slate-400 py-10">ยังไม่มีข้อมูลผู้ขับรถ</td></tr>`}</tbody>
+        </table>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* =========================================================
+   PAGE: LOGS
+   ========================================================= */
+function pageLogs(){
+  if(!isAdmin) return loginRequiredHTML('ประวัติการแก้ไข');
+  const arr = DB.editLogs;
+  const per = logState.per;
+  const totalPages = Math.max(1, Math.ceil(arr.length/per));
+  if(logState.page > totalPages) logState.page = totalPages;
+  const start = (logState.page-1)*per;
+  const slice = arr.slice(start, start+per);
+
+  const items = slice.map(l=>`
+    <div class="card p-3.5 mb-2.5">
+      <div class="flex items-center gap-2 flex-wrap">
+        <span class="badge b-plum"><i class="fa-solid fa-pen"></i> แก้ไขข้อมูล</span>
+        <span class="font-extrabold text-[13.5px] text-slate-800">${esc(l.bookingName)}</span>
+        <span class="text-[11px] text-slate-400 ml-auto"><i class="fa-regular fa-clock"></i> ${thDateTime(l.at)}</span>
+      </div>
+      <div class="mt-2 space-y-1.5">
+        ${l.changes.map(c=>`
+          <div class="text-[12.5px] bg-slate-50 rounded-lg px-3 py-2">
+            <span class="font-bold text-slate-600">${esc(FIELD_LABELS[c.field]||c.field)}:</span>
+            <span class="text-rose-500 line-through">${esc(c.from||'-')}</span>
+            <i class="fa-solid fa-arrow-right text-slate-300 mx-1 text-[10px]"></i>
+            <span class="text-emerald-600 font-bold">${esc(c.to||'-')}</span>
+          </div>`).join('')}
+      </div>
+    </div>`).join('');
+
+  return `
+  <div class="space-y-4">
+    <div class="flex items-center gap-3">
+      <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#0C7C82] to-[#35B4B0] text-white flex items-center justify-center text-lg">
+        <i class="fa-solid fa-clock-rotate-left"></i></div>
+      <div>
+        <div class="font-extrabold text-lg text-slate-700">ประวัติการแก้ไขข้อมูล</div>
+        <div class="text-xs text-slate-400">แสดงทีละ 10 รายการ • ล่าสุดอยู่ด้านบน</div>
+      </div>
+      <span class="badge b-teal ml-auto">${arr.length} รายการ</span>
+    </div>
+
+    ${arr.length ? items : `<div class="card p-10 text-center text-slate-400">
+        <i class="fa-regular fa-folder-open text-4xl mb-2"></i>
+        <div class="text-sm font-semibold">ยังไม่มีประวัติการแก้ไข</div></div>`}
+
+    <div class="flex items-center justify-between flex-wrap gap-2">
+      <div class="text-[12px] text-slate-500 font-semibold">
+        แสดง ${arr.length?start+1:0}-${Math.min(start+per, arr.length)} จาก ${arr.length} รายการ
+      </div>
+      <div class="flex items-center gap-1">
+        <button class="btn btn-ghost btn-sm" data-log-nav="prev" ${logState.page<=1?'disabled style="opacity:.4"':''}>
+          <i class="fa-solid fa-chevron-left"></i></button>
+        <span class="text-[12px] font-bold text-brand px-2">หน้า ${logState.page}/${totalPages}</span>
+        <button class="btn btn-ghost btn-sm" data-log-nav="next" ${logState.page>=totalPages?'disabled style="opacity:.4"':''}>
+          <i class="fa-solid fa-chevron-right"></i></button>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* =========================================================
+   PAGE: SETTINGS
+   ========================================================= */
+function pageSettings(){
+  if(!isAdmin) return loginRequiredHTML('ตั้งค่าการแจ้งเตือน');
+  const s = DB.settings;
+  const ev = s.events || {};
+  const tgDisabled = s.channel !== 'telegram' ? 'opacity:.5 pointer-events:none' : '';
+
+  return `
+  <div class="max-w-3xl mx-auto space-y-4">
+    <div class="flex items-center gap-3">
+      <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#0C7C82] to-[#35B4B0] text-white flex items-center justify-center text-lg">
+        <i class="fa-solid fa-bell"></i></div>
+      <div>
+        <div class="font-extrabold text-lg text-slate-700">ตั้งค่าการแจ้งเตือน</div>
+        <div class="text-xs text-slate-400">สำหรับผู้ดูแลระบบเท่านั้น</div>
+      </div>
+    </div>
+
+    <div class="card p-4 lg:p-5 space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <div class="font-extrabold text-[14px] text-slate-700">เปิด / ปิด การแจ้งเตือน</div>
+          <div class="text-[12px] text-slate-400">สวิตช์หลักสำหรับการแจ้งเตือนทั้งหมด</div>
+        </div>
+        <label class="relative inline-flex items-center cursor-pointer">
+          <input type="checkbox" id="swNotif" class="sr-only peer" ${s.notifEnabled?'checked':''}>
+          <div class="w-14 h-7 bg-slate-300 rounded-full peer-checked:bg-brand transition
+                      after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:bg-white
+                      after:rounded-full after:h-[22px] after:w-[22px] after:transition-all
+                      peer-checked:after:translate-x-7 after:shadow"></div>
+        </label>
+      </div>
+
+      <div class="border-t border-slate-100 pt-4">
+        <div class="font-extrabold text-[14px] text-slate-700 mb-2">ช่องทางการแจ้งเตือน</div>
+        <div class="grid sm:grid-cols-2 gap-2">
+          <label class="flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition
+                 ${s.channel==='telegram'?'border-brand bg-teal-50':'border-slate-200'}">
+            <input type="radio" name="channel" value="telegram" ${s.channel==='telegram'?'checked':''} class="accent-teal-600">
+            <i class="fa-brands fa-telegram text-2xl text-sky-500"></i>
+            <div><div class="font-bold text-[13px]">Telegram</div>
+                  <div class="text-[11px] text-slate-400">แจ้งเตือนผ่านบอท Telegram</div></div>
+          </label>
+          <label class="flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition
+                 ${s.channel==='none'?'border-brand bg-teal-50':'border-slate-200'}">
+            <input type="radio" name="channel" value="none" ${s.channel==='none'?'checked':''} class="accent-teal-600">
+            <i class="fa-solid fa-bell-slash text-2xl text-slate-400"></i>
+            <div><div class="font-bold text-[13px]">ปิดการแจ้งเตือน</div>
+                  <div class="text-[11px] text-slate-400">ไม่ส่งการแจ้งเตือนใด ๆ</div></div>
+          </label>
+        </div>
+      </div>
+
+      <div id="tgBox" class="border-t border-slate-100 pt-4 space-y-3 transition" style="${tgDisabled}">
+        <div class="font-extrabold text-[14px] text-slate-700">ตั้งค่า Telegram Bot</div>
+        <div>
+          <label class="lbl">Bot Token</label>
+          <input class="inp" id="tgToken" placeholder="123456789:AAxxxxxxxxxxxxxxxxxxxx" value="${esc(s.telegramToken)}">
+        </div>
+        <div>
+          <label class="lbl">Chat ID</label>
+          <input class="inp" id="tgChat" placeholder="-1001234567890" value="${esc(s.chatId)}">
+        </div>
+        <button class="btn btn-ghost btn-sm" id="btnTestTg"><i class="fa-solid fa-paper-plane"></i> ทดสอบส่งข้อความ</button>
+      </div>
+
+      <div class="border-t border-slate-100 pt-4">
+        <div class="font-extrabold text-[14px] text-slate-700 mb-2">เหตุการณ์ที่ต้องการแจ้งเตือน</div>
+        <div class="space-y-2">
+          ${[
+            ['newBooking','มีคำขอจองรถใหม่','fa-square-plus','#0288D1'],
+            ['approved','มีการอนุมัติการจอง','fa-circle-check','#22c55e'],
+            ['rejected','มีการไม่อนุมัติการจอง','fa-circle-xmark','#EF5350'],
+            ['edited','มีการแก้ไขข้อมูลการจอง','fa-pen','#4A2C6D']
+          ].map(([k,label,icon,color])=>`
+            <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-50">
+              <i class="fa-solid ${icon}" style="color:${color}"></i>
+              <span class="text-[13px] font-semibold flex-1">${label}</span>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" class="sr-only peer evt-sw" data-evt="${k}" ${ev[k]!==false?'checked':''}>
+                <div class="w-11 h-6 bg-slate-300 rounded-full peer-checked:bg-brand transition
+                            after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white
+                            after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-5"></div>
+              </label>
+            </div>`).join('')}
+        </div>
+      </div>
+
+      <div class="border-t border-slate-100 pt-4 flex justify-end gap-2">
+        <button class="btn btn-primary" id="btnSaveSettings"><i class="fa-solid fa-floppy-disk"></i> บันทึกการตั้งค่า</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* =========================================================
+   AFTER RENDER (attach listeners)
+   ========================================================= */
+function afterRender(){
+  // calendar nav
+  $$('[data-cal]').forEach(b=> b.onclick = ()=>{
+    const a = b.dataset.cal;
+    if(a==='prev'){ calState.m--; if(calState.m<0){calState.m=11;calState.y--;} }
+    if(a==='next'){ calState.m++; if(calState.m>11){calState.m=0;calState.y++;} }
+    if(a==='today'){ const n=new Date(); calState.m=n.getMonth(); calState.y=n.getFullYear(); }
+    render(true);
+  });
+
+  // day click
+  $$('[data-day]').forEach(el=> el.onclick = ()=> openDayModal(el.dataset.day));
+
+  // accordion
+  $$('[data-acc-toggle]').forEach(h=> h.onclick = ()=> h.closest('[data-acc]').classList.toggle('open'));
+
+  // search
+  const si = $('#searchInput');
+  if(si){
+    let t=null;
+    si.addEventListener('input', ()=>{
+      clearTimeout(t);
+      t = setTimeout(()=>{
+        listState.q = si.value;
+        listState.page = 1;
+        const box = $('#recentList');
+        if(box) box.innerHTML = recentListHTML();
+        bindPagination();
+        bindAccordionAgain();
+      }, 300);
+    });
+  }
+  const bs = $('#btnSearch');
+  if(bs) bs.onclick = ()=>{ listState.q = $('#searchInput').value; listState.page=1; render(true); };
+  const bc = $('#btnClearSearch');
+  if(bc) bc.onclick = ()=>{ listState.q=''; listState.page=1; render(true); };
+
+  bindPagination();
+
+  // ---- Book form ----
+  const form = $('#bookForm');
+  if(form){
+    const rows = $('#passengerRows');
+    const addRow = ()=> rows.insertAdjacentHTML('beforeend', passengerRowHTML());
+    addRow(); addRow();
+    $('#btnAddPassenger').onclick = addRow;
+    rows.addEventListener('click', e=>{
+      const btn = e.target.closest('[data-remove-row]');
+      if(btn){ btn.closest('[data-row]').remove(); }
+    });
+
+    // passenger mode toggle
+    $$('input[name="pmode"]').forEach(r=> r.onchange = ()=>{
+      const mode = document.querySelector('input[name="pmode"]:checked').value;
+      $('#paneList').classList.toggle('hidden', mode!=='list');
+      $('#paneFile').classList.toggle('hidden', mode!=='file');
+    });
+
+    // trip type
+    $('#f_trip').onchange = e=>{
+      const wrap = $('#tripOtherWrap');
+      wrap.classList.toggle('hidden', e.target.value!=='อื่น ๆ');
+    };
+
+    form.onsubmit = async e=>{
+      e.preventDefault();
+      const name = $('#f_name').value.trim();
+      const position = $('#f_position').value;
+      const purpose = $('#f_purpose').value.trim();
+      const destination = $('#f_destination').value.trim();
+      const departAt = $('#f_depart').value;
+      const returnAt = $('#f_return').value;
+      const tripType = $('#f_trip').value;
+      const tripOther = $('#f_tripOther').value.trim();
+      const travelers = $('#f_travelers').value;
+
+      if(!name||!position||!purpose||!destination||!departAt||!returnAt||!tripType||!travelers){
+        return Swal.fire({icon:'warning',title:'ข้อมูลไม่ครบถ้วน',text:'กรุณากรอกข้อมูลที่มีเครื่องหมาย * ให้ครบทุกช่อง',confirmButtonColor:'#0C7C82'});
+      }
+      if(new Date(returnAt) <= new Date(departAt)){
+        return Swal.fire({icon:'error',title:'ช่วงเวลาไม่ถูกต้อง',text:'วันที่กลับต้องอยู่หลังวันที่ไป',confirmButtonColor:'#0C7C82'});
+      }
+      if(tripType==='อื่น ๆ' && !tripOther){
+        return Swal.fire({icon:'warning',title:'กรุณาระบุประเภทการเดินทาง',confirmButtonColor:'#0C7C82'});
+      }
+
+      const mode = document.querySelector('input[name="pmode"]:checked').value;
+      let passengers = [], passengerFile = null;
+
+      if(mode==='list'){
+        $$('#passengerRows [data-row]').forEach(r=>{
+          const n = r.querySelector('.p-name').value.trim();
+          if(n) passengers.push({
+            name:n,
+            class: r.querySelector('.p-class').value,
+            position: r.querySelector('.p-pos').value
+          });
+        });
+        if(!passengers.length){
+          return Swal.fire({icon:'warning',title:'กรุณากรอกรายชื่อผู้เดินทาง',text:'อย่างน้อย 1 ท่าน หรือเลือกแนบไฟล์',confirmButtonColor:'#0C7C82'});
+        }
+      } else {
+        const f = $('#f_file').files[0];
+        if(!f){
+          return Swal.fire({icon:'warning',title:'กรุณาแนบไฟล์รายชื่อผู้เดินทาง',confirmButtonColor:'#0C7C82'});
+        }
+        if(f.size > 2*1024*1024){
+          return Swal.fire({icon:'error',title:'ไฟล์ใหญ่เกินไป',text:'รองรับไฟล์ขนาดไม่เกิน 2 MB',confirmButtonColor:'#0C7C82'});
+        }
+                Swal.fire({title:'กำลังอัปโหลดไฟล์...', allowOutsideClick:false, didOpen:()=>Swal.showLoading()});
+        try {
+          const fileData = await readFileAsDataURL(f);
+          const up = await apiCall('uploadFile', { name:f.name, type:f.type, base64:fileData.data });
+          passengerFile = { id:up.id, name:up.name, type:up.type, url:up.url };
+        } catch(err){
+          Swal.close();
+          return Swal.fire({icon:'error', title:'อัปโหลดไฟล์ไม่สำเร็จ', text:err.message, confirmButtonColor:'#0C7C82'});
+        }
+      }
+      // loading
+      Swal.fire({title:'กำลังบันทึกข้อมูล...', allowOutsideClick:false, didOpen:()=>Swal.showLoading(), confirmButtonColor:'#0C7C82'});
+
+      const booking = {
+        id: uid(),
+        createdAt: new Date().toISOString(),
+        name, position, purpose, destination,
+        departAt, returnAt,
+        tripType, tripTypeOther: tripType==='อื่น ๆ'? tripOther : '',
+        travelers: Number(travelers),
+        passengers, passengerFile,
+        status: 'pending',
+        vehicleId: '', driverId: ''
+      };
+            DB.bookings.push(booking);
+      saveDB();
+      try { await apiCall('saveBooking', booking); }
+      catch(e){ console.warn('saveBooking failed', e); }
+
+      pushNotify('newBooking',
+        `🚌 <b>มีคำขอจองรถใหม่</b>\nผู้จอง: ${name} (${position})\nสถานที่: ${destination}\nไป: ${thDateTime(departAt)}\nกลับ: ${thDateTime(returnAt)}\nสถานะ: รอพิจารณา`);
+
+      await new Promise(r=>setTimeout(r,600));
+      Swal.close();
+      Swal.fire({
+        icon:'success', title:'ส่งคำขอจองสำเร็จ!',
+        html:`<div class="text-sm text-slate-500">ระบบได้บันทึกคำขอจองของ <b>${esc(name)}</b><br>สถานะ: <span style="color:#F57C00;font-weight:700">กำลังรอพิจารณา</span></div>`,
+        confirmButtonColor:'#0C7C82', confirmButtonText:'ตกลง'
+      }).then(()=>{ navigate('list'); });
+    };
+
+    $('#btnResetForm').onclick = ()=> setTimeout(()=>{
+      $('#passengerRows').innerHTML = passengerRowHTML()+passengerRowHTML();
+      $('#tripOtherWrap').classList.add('hidden');
+    }, 0);
+  }
+
+  // ---- Settings page ----
+  if($('#swNotif')){
+    $$('input[name="channel"]').forEach(r=> r.onchange = ()=>{
+      const v = document.querySelector('input[name="channel"]:checked').value;
+      $('#tgBox').style.cssText = v==='telegram' ? '' : 'opacity:.5;pointer-events:none';
+      $$('input[name="channel"]').forEach(x=>{
+        const lab = x.closest('label');
+        lab.classList.toggle('border-brand', x.checked);
+        lab.classList.toggle('bg-teal-50', x.checked);
+        lab.classList.toggle('border-slate-200', !x.checked);
+      });
+    });
+    $('#btnSaveSettings').onclick = ()=>{
+      DB.settings.notifEnabled = $('#swNotif').checked;
+      DB.settings.channel = document.querySelector('input[name="channel"]:checked').value;
+      DB.settings.telegramToken = $('#tgToken').value.trim();
+      DB.settings.chatId = $('#tgChat').value.trim();
+      $$('.evt-sw').forEach(s=> DB.settings.events[s.dataset.evt] = s.checked);
+            saveDB();
+      apiCall('saveSettings', DB.settings).catch(e => console.warn(e));
+      okToast('บันทึกการตั้งค่าแล้ว');
+    };
+    $('#btnTestTg').onclick = async ()=>{
+      const token = $('#tgToken').value.trim(), chat = $('#tgChat').value.trim();
+      if(!token||!chat) return warnToast('กรุณากรอก Token และ Chat ID');
+      Swal.fire({title:'กำลังทดสอบ...',didOpen:()=>Swal.showLoading(),allowOutsideClick:false});
+      try{
+        const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`,{
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({chat_id:chat, text:'✅ ทดสอบการแจ้งเตือนจากระบบจองรถโรงเรียน พ.ก.'})
+        });
+        const j = await res.json();
+        Swal.close();
+        if(j.ok) okToast('ส่งข้อความทดสอบสำเร็จ'); else errToast('ไม่สำเร็จ: '+(j.description||''));
+      }catch(e){ Swal.close(); errToast('เชื่อมต่อ Telegram ไม่ได้'); }
+    };
+  }
+
+  // ---- Stats chart ----
+  if($('#monthChart')) drawMonthChart();
+}
+
+function bindAccordionAgain(){
+  $$('[data-acc-toggle]').forEach(h=> h.onclick = ()=> h.closest('[data-acc]').classList.toggle('open'));
+}
+function bindPagination(){
+  $$('[data-page-nav]').forEach(b=> b.onclick = ()=>{
+    if(b.disabled) return;
+    listState.page += (b.dataset.pageNav==='next'?1:-1);
+    if(listState.page<1) listState.page=1;
+    const box = $('#recentList');
+    if(box) box.innerHTML = recentListHTML();
+    bindPagination(); bindAccordionAgain();
+  });
+  $$('[data-log-nav]').forEach(b=> b.onclick = ()=>{
+    if(b.disabled) return;
+    logState.page += (b.dataset.logNav==='next'?1:-1);
+    if(logState.page<1) logState.page=1;
+    render(true);
+  });
+}
+function readFileAsDataURL(file){
+  return new Promise((res,rej)=>{
+    const r = new FileReader();
+    r.onload = ()=> res({ name:file.name, type:file.type, size:file.size, data:r.result });
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+
+/* =========================================================
+   GLOBAL EVENT DELEGATION
+   ========================================================= */
+document.addEventListener('click', async e=>{
+  const nav = e.target.closest('[data-page]');
+  if(nav && (nav.classList.contains('nav-item')||nav.classList.contains('bnav'))){
+    const p = nav.dataset.page;
+    if(['admin','vehicles','drivers','logs','settings'].includes(p) && !isAdmin){
+      openLoginModal();
+      return;
+    }
+    navigate(p);
+    return;
+  }
+  const go = e.target.closest('[data-goto]');
+  if(go){ navigate(go.dataset.goto); return; }
+
+  const act = e.target.closest('[data-action]');
+  if(!act) return;
+  const a = act.dataset.action;
+  const id = act.dataset.id;
+
+  switch(a){
+    case 'open-login': openLoginModal(); break;
+    case 'view-booking': openViewModal(id); break;
+    case 'edit-booking': openEditModal(id); break;
+    case 'del-booking': confirmDeleteBooking(id); break;
+    case 'set-status': await setStatus(id, act.dataset.status); break;
+    case 'view-file': openFileModal(id); break;
+    case 'add-vehicle': openVehicleModal(); break;
+    case 'edit-vehicle': openVehicleModal(id); break;
+    case 'del-vehicle': confirmDeleteVehicle(id); break;
+    case 'add-driver': openDriverModal(); break;
+    case 'edit-driver': openDriverModal(id); break;
+    case 'del-driver': confirmDeleteDriver(id); break;
+  }
+});
+
+/* vehicle / driver selects in admin table */
+document.addEventListener('change', e=>{
+  const v = e.target.closest('[data-veh-select]');
+  if(v){
+    const b = getBooking(v.dataset.vehSelect);
+    if(!b) return;
+    const oldV = b.vehicleId ? (getVehicle(b.vehicleId)?.plate||'') : '(ยังไม่กำหนด)';
+    const nv = v.value ? getVehicle(v.value) : null;
+    if(v.value && isVehicleBusy(v.value, b.id)){
+      v.value = b.vehicleId || '';
+      return errToast('รถคันนี้ไม่ว่างในขณะนี้');
+    }
+    const changes = [{ field:'vehicleId', from:oldV, to: nv? `${nv.plate} • ${nv.name}` : '(ยังไม่กำหนด)' }];
+    b.vehicleId = v.value;
+    logEdit(b.id, b.name, changes);
+    saveDB();
+    okToast('กำหนดประเภทรถแล้ว');
+    pushNotify('edited', `🛠 แอดมินกำหนดรถให้ ${b.name}: ${nv?nv.plate:'-'}`);
+    render(false);
+    return;
+  }
+  const d = e.target.closest('[data-drv-select]');
+  if(d){
+    const b = getBooking(d.dataset.drvSelect);
+    if(!b) return;
+    const oldD = b.driverId ? (getDriver(b.driverId)?.name||'') : '(ยังไม่กำหนด)';
+    const nd = d.value ? getDriver(d.value) : null;
+    if(d.value && isDriverBusy(d.value, b.id)){
+      d.value = b.driverId || '';
+      return errToast('ผู้ขับรถท่านนี้ไม่ว่างในขณะนี้');
+    }
+    b.driverId = d.value;
+    logEdit(b.id, b.name, [{ field:'driverId', from:oldD, to: nd? nd.name : '(ยังไม่กำหนด)' }]);
+    saveDB();
+    okToast('กำหนดผู้ขับรถแล้ว');
+    pushNotify('edited', `🛠 แอดมินกำหนดผู้ขับรถให้ ${b.name}: ${nd?nd.name:'-'}`);
+    render(false);
+  }
+});
+
+/* =========================================================
+   ACTIONS
+   ========================================================= */
+async function setStatus(id, status){
+  const b = getBooking(id);
+  if(!b) return;
+  const meta = statusMeta[status];
+  const res = await Swal.fire({
+    title: `ยืนยันเปลี่ยนสถานะ?`,
+    html: `เปลี่ยนสถานะของ <b>${esc(b.name)}</b><br>เป็น <b style="color:${meta.color}">${meta.label}</b>`,
+    icon:'question', showCancelButton:true,
+    confirmButtonText:'ยืนยัน', cancelButtonText:'ยกเลิก',
+    confirmButtonColor:'#0C7C82', cancelButtonColor:'#94a3b8'
+  });
+  if(!res.isConfirmed) return;
+
+  if(status==='approved'){
+    if(!b.vehicleId || !b.driverId){
+      const r2 = await Swal.fire({
+        icon:'info', title:'ยังไม่ได้กำหนดรถ / ผู้ขับ',
+        text:'ต้องการอนุมัติก่อนกำหนดรถและผู้ขับรถหรือไม่? (สามารถกำหนดภายหลังได้)',
+        showCancelButton:true, confirmButtonText:'อนุมัติเลย', cancelButtonText:'ยกเลิก',
+        confirmButtonColor:'#0C7C82', cancelButtonColor:'#94a3b8'
+      });
+      if(!r2.isConfirmed) return;
+    }
+  }
+
+  const old = statusMeta[b.status].label;
+    b.status = status;
+  logEdit(b.id, b.name, [{ field:'status', from:old, to:meta.label }]);
+  saveDB();
+  apiCall('saveBooking', b).catch(e => console.warn(e));
+  render(false);
+
+  if(status==='approved') pushNotify('approved', `✅ อนุมัติการจองของ ${b.name}\nสถานที่: ${b.destination}`);
+  if(status==='rejected') pushNotify('rejected', `❌ ไม่อนุมัติการจองของ ${b.name}\nสถานที่: ${b.destination}`);
+
+  Toast.fire({icon:'success', title:`เปลี่ยนสถานะเป็น "${meta.label}" แล้ว`});
+}
+
+function confirmDeleteBooking(id){
+  const b = getBooking(id);
+  if(!b) return;
+  Swal.fire({
+    title:'ยืนยันการยกเลิกการจอง?',
+    html:`ต้องการยกเลิก/ลบรายการจองของ <b>${esc(b.name)}</b><br><span style="color:#94a3b8;font-size:13px">${esc(b.destination)} • ${thDateTimeShort(b.departAt)}</span><br><br>
+          <span style="color:#EF5350;font-size:13px">ข้อมูลจะถูกลบอย่างถาวร</span>`,
+    icon:'warning', showCancelButton:true,
+    confirmButtonText:'ยืนยันลบ', cancelButtonText:'ยกเลิก',
+    confirmButtonColor:'#D32F2F', cancelButtonColor:'#94a3b8'
+  }).then(res=>{
+    if(!res.isConfirmed) return;
+        DB.bookings = DB.bookings.filter(x=>x.id!==id);
+    saveDB();
+    apiCall('deleteBooking', { id }).catch(e => console.warn(e));
+    render(false);
+    okToast('ลบรายการจองแล้ว');
+  });
+}
+
+function openViewModal(id){
+  const b = getBooking(id);
+  if(!b) return;
+  const meta = statusMeta[b.status];
+  const veh = b.vehicleId?getVehicle(b.vehicleId):null;
+  const drv = b.driverId?getDriver(b.driverId):null;
+  showModal(`
+    <div class="modal-box max-w-2xl">
+      <div class="flex items-center gap-3 p-4 border-b border-slate-100 sticky top-0 bg-white z-10">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:${meta.color}1f;color:${meta.color}">
+          <i class="fa-solid ${meta.icon}"></i></div>
+        <div class="font-extrabold text-slate-700">รายละเอียดการจอง</div>
+        <button class="ml-auto w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200" data-close-modal><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="p-4 space-y-3 text-[13px]">
+        <div class="grid sm:grid-cols-2 gap-3">
+          ${viewItem('วันที่จอง', thDate(b.createdAt))}
+          ${viewItem('สถานะ', statusBadge(b.status), true)}
+          ${viewItem('ชื่อ-นามสกุลผู้จอง', esc(b.name))}
+          ${viewItem('ตำแหน่ง', esc(b.position))}
+          ${viewItem('วัตถุประสงค์ของการจอง', esc(b.purpose))}
+          ${viewItem('สถานที่ที่ไป', esc(b.destination))}
+          ${viewItem('วันที่ไป', thDateTime(b.departAt))}
+          ${viewItem('วันที่กลับ', thDateTime(b.returnAt))}
+          ${viewItem('ประเภทการเดินทาง', b.tripType==='อื่น ๆ'?`อื่น ๆ (${esc(b.tripTypeOther)})`:esc(b.tripType))}
+          ${viewItem('จำนวนผู้เดินทาง', esc(b.travelers)+' คน')}
+        </div>
+        <div class="rounded-xl bg-slate-50 p-3">
+          <div class="font-bold text-slate-500 text-[11px] mb-1">รายชื่อผู้เดินทาง</div>
+          ${renderPassengers(b)}
+        </div>
+        <div class="grid sm:grid-cols-2 gap-3">
+          <div class="rounded-xl p-3" style="background:${veh?'#ccfbf1':'#f1f5f9'}">
+            <div class="text-[11px] font-bold text-slate-500">ประเภทรถที่ไป</div>
+            <div class="text-base font-extrabold ${veh?'text-teal-700':'text-slate-400'}">${veh?esc(veh.plate)+' • '+esc(veh.name):'รอแอดมินกำหนด'}</div>
+          </div>
+          <div class="rounded-xl p-3" style="background:${drv?'#ede9fe':'#f1f5f9'}">
+            <div class="text-[11px] font-bold text-slate-500">ผู้ขับรถ</div>
+            <div class="text-base font-extrabold ${drv?'text-violet-700':'text-slate-400'}">${drv?esc(drv.name):'รอแอดมินกำหนด'}</div>
+          </div>
+        </div>
+      </div>
+      <div class="p-4 border-t border-slate-100 flex justify-end gap-2">
+        <button class="btn btn-ghost" data-close-modal>ปิด</button>
+        ${isAdmin?`<button class="btn btn-primary" data-action="edit-booking" data-id="${b.id}"><i class="fa-solid fa-pen"></i> แก้ไข</button>`:''}
+      </div>
+    </div>`);
+}
+function viewItem(label, value, raw){
+  return `<div class="rounded-xl bg-slate-50 p-3">
+    <div class="text-[11px] font-bold text-slate-400">${label}</div>
+    <div class="font-semibold text-slate-700">${raw?value:value}</div></div>`;
+}
+
+function openFileModal(id){
+  const b = getBooking(id);
+  if(!b) return;
+  const f = b.passengerFile || (b.passengerFileUrl ? {
+    name: b.passengerFileName, type: b.passengerFileType,
+    url: b.passengerFileUrl, thumbnailUrl:'', previewUrl:'', downloadUrl: b.passengerFileUrl
+  } : null);
+  if(!f) return;
+  const isImg = (f.type||'').startsWith('image/');
+  const src = isImg ? (f.thumbnailUrl || f.url) : (f.previewUrl || f.url);
+  const dl  = f.downloadUrl || f.url;
+  showModal(`
+    <div class="modal-box max-w-3xl">
+      <div class="flex items-center gap-3 p-4 border-b border-slate-100">
+        <i class="fa-solid ${isImg?'fa-image':'fa-file-pdf'} text-xl text-brand"></i>
+        <div class="font-extrabold text-slate-700 truncate">${esc(f.name)}</div>
+        <button class="ml-auto w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200" data-close-modal><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="p-4 bg-slate-50">
+        ${isImg
+          ? `<img src="${src}" class="w-full rounded-xl border border-slate-200">`
+          : `<iframe src="${src}" class="w-full h-[65vh] rounded-xl border border-slate-200"></iframe>`}
+      </div>
+      <div class="p-4 border-t border-slate-100 flex justify-end gap-2">
+        <a href="${dl}" target="_blank" rel="noopener" class="btn btn-primary"><i class="fa-solid fa-download"></i> เปิดใน Drive / ดาวน์โหลด</a>
+        <button class="btn btn-ghost" data-close-modal>ปิด</button>
+      </div>
+    </div>`);
+}
+
+/* =========================================================
+   EDIT BOOKING MODAL
+   ========================================================= */
+function openEditModal(id){
+  if(!isAdmin) return openLoginModal();
+  const b = getBooking(id);
+  if(!b) return;
+
+  const vehOpts = DB.vehicles.map(v=>{
+    const busy = isVehicleBusy(v.id, b.id);
+    return `<option value="${v.id}" ${b.vehicleId===v.id?'selected':''} ${busy?'disabled':''}>${esc(v.plate)} • ${esc(v.name)}${busy?' (ไม่ว่าง)':''}</option>`;
+  }).join('');
+  const drvOpts = DB.drivers.map(d=>{
+    const busy = isDriverBusy(d.id, b.id);
+    return `<option value="${d.id}" ${b.driverId===d.id?'selected':''} ${busy?'disabled':''}>${esc(d.name)}${busy?' (ไม่ว่าง)':''}</option>`;
+  }).join('');
+
+  showModal(`
+    <div class="modal-box max-w-3xl">
+      <div class="flex items-center gap-3 p-4 border-b border-slate-100 sticky top-0 bg-white z-10">
+        <div class="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center"><i class="fa-solid fa-pen"></i></div>
+        <div>
+          <div class="font-extrabold text-slate-700">แก้ไขข้อมูลการจอง</div>
+          <div class="text-[11px] text-slate-400">การแก้ไขจะถูกบันทึกในประวัติ</div>
+        </div>
+        <button class="ml-auto w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200" data-close-modal><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <form id="editForm" class="p-4 space-y-4">
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div><label class="lbl">ชื่อ-นามสกุลผู้จอง</label><input class="inp" id="e_name" value="${esc(b.name)}"></div>
+          <div><label class="lbl">ตำแหน่ง</label>
+            <select class="inp" id="e_position">${POSITIONS.map(p=>`<option ${b.position===p?'selected':''}>${p}</option>`).join('')}</select>
+          </div>
+          <div><label class="lbl">วัตถุประสงค์</label><input class="inp" id="e_purpose" value="${esc(b.purpose)}"></div>
+          <div><label class="lbl">สถานที่ที่ไป</label><input class="inp" id="e_destination" value="${esc(b.destination)}"></div>
+          <div><label class="lbl">วันที่ไป</label><input type="datetime-local" class="inp" id="e_depart" value="${b.departAt}"></div>
+          <div><label class="lbl">วันที่กลับ</label><input type="datetime-local" class="inp" id="e_return" value="${b.returnAt}"></div>
+          <div><label class="lbl">ประเภทการเดินทาง</label>
+            <select class="inp" id="e_trip">${TRIP_TYPES.map(t=>`<option ${b.tripType===t?'selected':''}>${t}</option>`).join('')}</select>
+          </div>
+          <div><label class="lbl">จำนวนผู้เดินทาง (คน)</label><input type="number" min="1" class="inp" id="e_travelers" value="${b.travelers}"></div>
+        </div>
+
+        <div class="grid sm:grid-cols-3 gap-4 pt-2 border-t border-slate-100">
+          <div><label class="lbl">สถานะ</label>
+            <select class="inp" id="e_status">
+              <option value="pending"  ${b.status==='pending'?'selected':''}>กำลังรอพิจารณา</option>
+              <option value="approved" ${b.status==='approved'?'selected':''}>อนุมัติ</option>
+              <option value="rejected" ${b.status==='rejected'?'selected':''}>ไม่อนุมัติ</option>
+            </select>
+          </div>
+          <div><label class="lbl">ประเภทรถที่ไป</label>
+            <select class="inp" id="e_vehicle"><option value="">-- ยังไม่กำหนด --</option>${vehOpts}</select>
+          </div>
+          <div><label class="lbl">ผู้ขับรถ</label>
+            <select class="inp" id="e_driver"><option value="">-- ยังไม่กำหนด --</option>${drvOpts}</select>
+          </div>
+        </div>
+      </form>
+
+      <div class="p-4 border-t border-slate-100 flex justify-end gap-2 sticky bottom-0 bg-white">
+        <button class="btn btn-ghost" data-close-modal>ยกเลิก</button>
+        <button class="btn btn-primary" id="btnSaveEdit"><i class="fa-solid fa-floppy-disk"></i> บันทึกการแก้ไข</button>
+      </div>
+    </div>`);
+
+  $('#btnSaveEdit').onclick = async ()=>{
+    const nv = {
+      name: $('#e_name').value.trim(),
+      position: $('#e_position').value,
+      purpose: $('#e_purpose').value.trim(),
+      destination: $('#e_destination').value.trim(),
+      departAt: $('#e_depart').value,
+      returnAt: $('#e_return').value,
+      tripType: $('#e_trip').value,
+      travelers: Number($('#e_travelers').value),
+      status: $('#e_status').value,
+      vehicleId: $('#e_vehicle').value,
+      driverId: $('#e_driver').value
+    };
+    if(!nv.name || !nv.purpose || !nv.destination || !nv.departAt || !nv.returnAt){
+      return warnToast('กรุณากรอกข้อมูลให้ครบถ้วน');
+    }
+    if(new Date(nv.returnAt) <= new Date(nv.departAt)){
+      return Swal.fire({icon:'error',title:'ช่วงเวลาไม่ผิดต้อง',text:'วันที่กลับต้องอยู่หลังวันที่ไป',confirmButtonColor:'#0C7C82'});
+    }
+    if(nv.vehicleId && isVehicleBusy(nv.vehicleId, b.id)) return errToast('รถคันนี้ไม่ว่าง');
+    if(nv.driverId && isDriverBusy(nv.driverId, b.id)) return errToast('ผู้ขับรถท่านนี้ไม่ว่าง');
+
+    // compute changes
+    const changes = [];
+    const cmp = (field, oldV, newV, fmt)=>{
+      const o = fmt?fmt(oldV):(oldV||'');
+      const n = fmt?fmt(newV):(newV||'');
+      if(String(o)!==String(n)) changes.push({field, from:o, to:n});
+    };
+    const vName = id => id ? (getVehicle(id)? `${getVehicle(id).plate} • ${getVehicle(id).name}`:'') : '';
+    const dName = id => id ? (getDriver(id)?.name||'') : '';
+
+    cmp('name', b.name, nv.name);
+    cmp('position', b.position, nv.position);
+    cmp('purpose', b.purpose, nv.purpose);
+    cmp('destination', b.destination, nv.destination);
+    cmp('departAt', b.departAt, nv.departAt, thDateTime);
+    cmp('returnAt', b.returnAt, nv.returnAt, thDateTime);
+    cmp('tripType', b.tripType, nv.tripType);
+    cmp('travelers', b.travelers, nv.travelers, v=> v+' คน');
+    cmp('status', b.status, nv.status, v=> (statusMeta[v]||{}).label||v);
+    cmp('vehicleId', b.vehicleId, nv.vehicleId, vName);
+    cmp('driverId', b.driverId, nv.driverId, dName);
+
+    if(!changes.length){
+      closeModal();
+      return warnToast('ไม่มีการเปลี่ยนแปลงข้อมูล');
+    }
+
+    const r = await Swal.fire({
+      title:'ยืนยันการแก้ไข?',
+      html:`จะมีการเปลี่ยนแปลง <b>${changes.length}</b> รายการ`,
+      icon:'question', showCancelButton:true,
+      confirmButtonText:'ยืนยัน', cancelButtonText:'ยกเลิก',
+      confirmButtonColor:'#0C7C82', cancelButtonColor:'#94a3b8'
+    });
+    if(!r.isConfirmed) return;
+
+    Object.assign(b, nv);
+    logEdit(b.id, b.name, changes);
+    saveDB();
+    closeModal();
+    render(false);
+    okToast('บันทึกการแก้ไขแล้ว');
+    pushNotify('edited', `🛠 มีการแก้ไขข้อมูลการจองของ ${b.name} (${changes.length} รายการ)`);
+  };
+}
+
+/* =========================================================
+   VEHICLE / DRIVER MODALS
+   ========================================================= */
+function openVehicleModal(id){
+  const v = id ? getVehicle(id) : null;
+  showModal(`
+    <div class="modal-box max-w-md">
+      <div class="flex items-center gap-3 p-4 border-b border-slate-100">
+        <div class="w-10 h-10 rounded-xl bg-teal-50 text-brand flex items-center justify-center"><i class="fa-solid fa-truck-front"></i></div>
+        <div class="font-extrabold text-slate-700">${v?'แก้ไข':'เพิ่ม'}ประเภทรถที่ไป</div>
+        <button class="ml-auto w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200" data-close-modal><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="p-4 space-y-3">
+        <div><label class="lbl">ทะเบียนรถ <span class="text-rose-500">*</span></label>
+          <input class="inp" id="v_plate" value="${v?esc(v.plate):''}" placeholder="เช่น นข 5526"></div>
+        <div><label class="lbl">ชื่อรถ / ประเภท</label>
+          <input class="inp" id="v_name" value="${v?esc(v.name):''}" placeholder="เช่น รถตู้โรงเรียน"></div>
+        <div><label class="lbl">จำนวนที่นั่ง</label>
+          <input class="inp" id="v_seats" value="${v?esc(v.seats||''):''}" placeholder="เช่น 12 ที่นั่ง"></div>
+      </div>
+      <div class="p-4 border-t border-slate-100 flex justify-end gap-2">
+        <button class="btn btn-ghost" data-close-modal>ยกเลิก</button>
+        <button class="btn btn-primary" id="btnSaveVehicle"><i class="fa-solid fa-floppy-disk"></i> บันทึก</button>
+      </div>
+    </div>`);
+
+  $('#btnSaveVehicle').onclick = ()=>{
+    const plate = $('#v_plate').value.trim();
+    const name = $('#v_name').value.trim();
+    const seats = $('#v_seats').value.trim();
+    if(!plate) return warnToast('กรุณากรอกทะเบียนรถ');
+    let target;
+    if(v){
+      const old = `${v.plate} • ${v.name}`;
+      v.plate = plate; v.name = name || v.name; v.seats = seats;
+      DB.editLogs.unshift({ id:uid(), bookingId:'-', bookingName:'ข้อมูลรถ: '+old,
+        at:new Date().toISOString(), by:'admin',
+        changes:[{field:'vehicle', from:old, to:`${plate} • ${name||v.name}`}] });
+      target = v;
+    } else {
+      target = { id: uid(), plate, name: name||'รถโรงเรียน', seats };
+      DB.vehicles.push(target);
+    }
+    saveDB();
+    apiCall('saveVehicle', target).catch(e => console.warn(e));
+    closeModal(); render(false); okToast('บันทึกข้อมูลรถแล้ว');
+}
+function confirmDeleteVehicle(id){
+  const v = getVehicle(id); if(!v) return;
+  if(isVehicleBusy(id, null)) return Swal.fire({icon:'error',title:'ไม่สามารถลบได้',text:'รถคันนี้กำลังถูกใช้งานอยู่',confirmButtonColor:'#0C7C82'});
+  Swal.fire({
+    title:'ยืนยันการลบรถ?',
+    html:`ลบรถ <b>${esc(v.plate)} • ${esc(v.name)}</b>`,
+    icon:'warning', showCancelButton:true, confirmButtonText:'ยืนยันลบ', cancelButtonText:'ยกเลิก',
+    confirmButtonColor:'#D32F2F', cancelButtonColor:'#94a3b8'
+  }).then(r=>{
+    if(!r.isConfirmed) return;
+        DB.vehicles = DB.vehicles.filter(x=>x.id!==id);
+    DB.bookings.forEach(b=>{ if(b.vehicleId===id) b.vehicleId=''; });
+    saveDB();
+    apiCall('deleteVehicle', { id }).catch(e => console.warn(e));
+    render(false); okToast('ลบข้อมูลรถแล้ว');
+  });
+}
+
+function openDriverModal(id){
+  const d = id ? getDriver(id) : null;
+  showModal(`
+    <div class="modal-box max-w-md">
+      <div class="flex items-center gap-3 p-4 border-b border-slate-100">
+        <div class="w-10 h-10 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center"><i class="fa-solid fa-id-card"></i></div>
+        <div class="font-extrabold text-slate-700">${d?'แก้ไข':'เพิ่ม'}รายชื่อผู้ขับรถ</div>
+        <button class="ml-auto w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200" data-close-modal><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="p-4 space-y-3">
+        <div><label class="lbl">ชื่อ-นามสกุล <span class="text-rose-500">*</span></label>
+          <input class="inp" id="d_name" value="${d?esc(d.name):''}" placeholder="เช่น นายสมชาย ใจดี"></div>
+        <div><label class="lbl">เบอร์โทรศัพท์</label>
+          <input class="inp" id="d_phone" value="${d?esc(d.phone||''):''}" placeholder="เช่น 081-000-0000"></div>
+      </div>
+      <div class="p-4 border-t border-slate-100 flex justify-end gap-2">
+        <button class="btn btn-ghost" data-close-modal>ยกเลิก</button>
+        <button class="btn btn-primary" id="btnSaveDriver"><i class="fa-solid fa-floppy-disk"></i> บันทึก</button>
+      </div>
+    </div>`);
+
+  $('#btnSaveDriver').onclick = ()=>{
+    const name = $('#d_name').value.trim();
+    const phone = $('#d_phone').value.trim();
+    if(!name) return warnToast('กรุณากรอกชื่อผู้ขับรถ');
+        let target;
+    if(d){
+      const old = d.name;
+      d.name = name; d.phone = phone;
+      DB.editLogs.unshift({ id:uid(), bookingId:'-', bookingName:'ข้อมูลผู้ขับรถ: '+old,
+        at:new Date().toISOString(), by:'admin',
+        changes:[{field:'driver', from:old, to:name}] });
+      target = d;
+    } else {
+      target = { id: uid(), name, phone };
+      DB.drivers.push(target);
+    }
+    saveDB();
+    apiCall('saveDriver', target).catch(e => console.warn(e));
+    closeModal(); render(false); okToast('บันทึกข้อมูลผู้ขับรถแล้ว');
+  };
+}
+function confirmDeleteDriver(id){
+  const d = getDriver(id); if(!d) return;
+  if(isDriverBusy(id, null)) return Swal.fire({icon:'error',title:'ไม่สามารถลบได้',text:'ผู้ขับรถท่านนี้กำลังปฏิบัติงานอยู่',confirmButtonColor:'#0C7C82'});
+  Swal.fire({
+    title:'ยืนยันการลบผู้ขับรถ?',
+    html:`ลบ <b>${esc(d.name)}</b>`,
+    icon:'warning', showCancelButton:true, confirmButtonText:'ยืนยันลบ', cancelButtonText:'ยกเลิก',
+    confirmButtonColor:'#D32F2F', cancelButtonColor:'#94a3b8'
+  }).then(r=>{
+    if(!r.isConfirmed) return;
+        DB.drivers = DB.drivers.filter(x=>x.id!==id);
+    DB.bookings.forEach(b=>{ if(b.driverId===id) b.driverId=''; });
+    saveDB();
+    apiCall('deleteDriver', { id }).catch(e => console.warn(e));
+    render(false); okToast('ลบผู้ขับรถแล้ว');
+  });
+}
+
+/* =========================================================
+   DAY MODAL
+   ========================================================= */
+function openDayModal(key){
+  const [y,m,d] = key.split('-').map(Number);
+  const dt = new Date(y, m-1, d);
+  const items = bookingsOnDate(dt);
+
+  const body = items.length
+    ? items.map((b,i)=> bookingAccordion(b, i, true, dt)).join('')
+    : `<div class="text-center py-12 text-slate-400">
+         <i class="fa-regular fa-calendar-xmark text-4xl mb-2"></i>
+         <div class="text-sm font-semibold">ไม่มีรายการจองในวันนี้</div></div>`;
+
+  showModal(`
+    <div class="modal-box max-w-2xl">
+      <div class="flex items-center gap-3 p-4 border-b border-slate-100 sticky top-0 bg-white z-10">
+        <div class="w-10 h-10 rounded-xl bg-teal-50 text-brand flex items-center justify-center"><i class="fa-regular fa-calendar-days"></i></div>
+        <div>
+          <div class="font-extrabold text-slate-700">${thDate(dt.toISOString())}</div>
+          <div class="text-[11px] text-slate-400">${items.length} รายการจองในวันนี้ • คลิกเพื่อดูรายละเอียด</div>
+        </div>
+        <button class="ml-auto w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200" data-close-modal><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="p-4 max-h-[62vh] overflow-auto" id="dayModalBody">${body}</div>
+      <div class="p-4 border-t border-slate-100 flex justify-end">
+        <button class="btn btn-ghost" data-close-modal>ปิด</button>
+      </div>
+    </div>`);
+
+  $$('#dayModalBody [data-acc-toggle]').forEach(h=> h.onclick = ()=> h.closest('[data-acc]').classList.toggle('open'));
+  // เปิดรายการแรกไว้ก่อน
+  const first = document.querySelector('#dayModalBody [data-acc]');
+  if(first && items.length===1) first.classList.add('open');
+}
+
+/* =========================================================
+   ENTRY POPUP (approved bookings, numbered 1..n)
+   ========================================================= */
+function showEntryPopup(){
+  const approved = DB.bookings
+    .filter(b=>b.status==='approved')
+    .sort((a,b)=> new Date(a.createdAt)-new Date(b.createdAt));
+
+  if(!approved.length){
+    Swal.fire({
+      icon:'info',
+      title:'ระบบจองรถโรงเรียน พ.ก.',
+      html:`<div class="text-sm text-slate-500">ยังไม่มีการจองที่ได้รับการอนุมัติในขณะนี้</div>`,
+      confirmButtonColor:'#0C7C82', confirmButtonText:'เริ่มใช้งาน'
+    });
+    return;
+  }
+
+  const items = approved.map((b,i)=>{
+    const veh = b.vehicleId?getVehicle(b.vehicleId):null;
+    const drv = b.driverId?getDriver(b.driverId):null;
+    return `
+    <div class="card p-3 mb-2.5 border-l-4" style="border-left-color:${statusMeta.approved.color}">
+      <div class="flex items-start gap-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm font-extrabold shrink-0">${i+1}</div>
+        <div class="flex-1 min-w-0">
+          <div class="font-extrabold text-[14px] text-slate-800">${esc(b.name)} <span class="badge b-teal ml-1">${esc(b.position)}</span></div>
+          <div class="text-[12px] text-slate-500 mt-1">
+            <div><i class="fa-solid fa-bullseye text-brand"></i> ${esc(b.purpose)}</div>
+            <div><i class="fa-solid fa-location-dot text-rose-500"></i> ${esc(b.destination)}</div>
+            <div><i class="fa-solid fa-arrow-right text-emerald-500"></i> ไป: ${thDateTime(b.departAt)}</div>
+            <div><i class="fa-solid fa-arrow-left text-rose-500"></i> กลับ: ${thDateTime(b.returnAt)}</div>
+            <div><i class="fa-regular fa-calendar-check text-slate-400"></i> วันที่จอง: ${thDate(b.createdAt)}</div>
+          </div>
+          <div class="grid grid-cols-2 gap-2 mt-2">
+            <div class="rounded-lg p-2 bg-teal-50">
+              <div class="text-[10px] font-bold text-slate-500">ประเภทรถที่ไป</div>
+              <div class="text-[13px] font-extrabold text-teal-700">${veh?esc(veh.plate)+' • '+esc(veh.name):'-'}</div>
+            </div>
+            <div class="rounded-lg p-2 bg-violet-50">
+              <div class="text-[10px] font-bold text-slate-500">ผู้ขับรถ</div>
+              <div class="text-[13px] font-extrabold text-violet-700">${drv?esc(drv.name):'-'}</div>
+            </div>
+          </div>
+        </div>
+        <div class="shrink-0">${statusBadge(b.status)}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  showModal(`
+    <div class="modal-box max-w-3xl">
+      <div class="p-4 border-b border-slate-100 bg-gradient-to-r from-[#0C7C82] to-[#35B4B0] text-white rounded-t-[1.25rem]">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-2xl bg-white/20 flex items-center justify-center text-xl"><i class="fa-solid fa-bus-simple"></i></div>
+          <div>
+            <div class="font-extrabold text-lg leading-tight">ระบบจองรถโรงเรียน พ.ก.</div>
+            <div class="text-[12px] opacity-90">รายการจองที่ได้รับการอนุมัติแล้ว • ${approved.length} รายการ</div>
+          </div>
+          <button class="ml-auto w-9 h-9 rounded-xl bg-white/20 hover:bg-white/30" data-close-modal><i class="fa-solid fa-xmark"></i></button>
+        </div>
+      </div>
+      <div class="p-4 max-h-[68vh] overflow-auto">${items}</div>
+      <div class="p-4 border-t border-slate-100 flex justify-end gap-2">
+        <button class="btn btn-ghost" data-close-modal>ปิด</button>
+        <button class="btn btn-primary" data-close-modal data-goto-close="book"><i class="fa-solid fa-plus"></i> จองรถโรงเรียน</button>
+      </div>
+    </div>`);
+
+  const btn = document.querySelector('[data-goto-close]');
+  if(btn) btn.addEventListener('click', ()=>{ closeModal(); navigate('book'); });
+}
+
+/* =========================================================
+   MODAL HELPERS
+   ========================================================= */
+function showModal(html){
+  const root = $('#modalRoot');
+  root.innerHTML = `<div class="modal-bg" id="modalBg">${html}</div>`;
+  document.body.style.overflow = 'hidden';
+  document.getElementById('modalBg').addEventListener('click', e=>{
+    if(e.target.id==='modalBg') closeModal();
+  });
+  $$('[data-close-modal]').forEach(b=> b.addEventListener('click', closeModal));
+}
+function closeModal(){
+  $('#modalRoot').innerHTML = '';
+  document.body.style.overflow = '';
+}
+
+/* =========================================================
+   LOGIN
+   ========================================================= */
+function openLoginModal(){
+  showModal(`
+    <div class="modal-box max-w-sm">
+      <div class="p-6 text-center bg-gradient-to-br from-[#0C7C82] to-[#35B4B0] text-white rounded-t-[1.25rem]">
+        <div class="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center text-3xl mx-auto mb-2">
+          <i class="fa-solid fa-user-shield"></i></div>
+        <div class="font-extrabold text-lg">เข้าสู่ระบบผู้ดูแล</div>
+        <div class="text-[12px] opacity-90">ระบบจองรถโรงเรียน พ.ก.</div>
+      </div>
+      <form id="loginForm" class="p-5 space-y-3">
+        <div>
+          <label class="lbl">ชื่อผู้ใช้</label>
+          <input class="inp" id="lg_user" placeholder="admin" autocomplete="username">
+        </div>
+        <div>
+          <label class="lbl">รหัสผ่าน</label>
+          <input type="password" class="inp" id="lg_pass" placeholder="••••••••" autocomplete="current-password">
+        </div>
+        <button type="submit" class="btn btn-primary w-full" id="btnDoLogin">
+          <i class="fa-solid fa-right-to-bracket"></i> เข้าสู่ระบบ
+        </button>
+        <button type="button" class="btn btn-ghost w-full" data-close-modal>ยกเลิก</button>
+      </form>
+    </div>`);
+
+  setTimeout(()=> $('#lg_user')?.focus(), 150);
+
+  $('#loginForm').onsubmit = async e=>{
+    e.preventDefault();
+    const u = $('#lg_user').value.trim();
+    const p = $('#lg_pass').value;
+    const btn = $('#btnDoLogin');
+    btn.innerHTML = `<i class="fa-solid fa-spinner spin"></i> กำลังตรวจสอบ...`;
+    btn.disabled = true;
+    await new Promise(r=>setTimeout(r,650));
+
+    if(u==='admin' && p==='admin852'){
+      isAdmin = true;
+      closeModal();
+      updateBadges();
+      Swal.fire({
+        icon:'success', title:'เข้าสู่ระบบสำเร็จ',
+        text:'ยินดีต้อนรับ ผู้ดูแลระบบ',
+        confirmButtonColor:'#0C7C82', timer:1600, showConfirmButton:false
+      });
+      render(true);
+    } else {
+      btn.innerHTML = `<i class="fa-solid fa-right-to-bracket"></i> เข้าสู่ระบบ`;
+      btn.disabled = false;
+      errToast('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');
+    }
+  };
+}
+
+/* logout */
+$('#btnLogout').onclick = ()=>{
+  Swal.fire({
+    title:'ออกจากระบบ?',
+    text:'คุณต้องการออกจากระบบผู้ดูแลใช่หรือไม่',
+    icon:'question', showCancelButton:true,
+    confirmButtonText:'ออกจากระบบ', cancelButtonText:'ยกเลิก',
+    confirmButtonColor:'#D32F2F', cancelButtonColor:'#94a3b8'
+  }).then(r=>{
+    if(!r.isConfirmed) return;
+    isAdmin = false;
+    updateBadges();
+    navigate('dashboard');
+    okToast('ออกจากระบบแล้ว');
+  });
+};
+
+/* =========================================================
+   SIDEBAR / BELL
+   ========================================================= */
+function openSidebar(){ $('#sidebar').classList.remove('-translate-x-full'); $('#overlay').classList.remove('hidden'); }
+function closeSidebar(){ $('#sidebar').classList.add('-translate-x-full'); $('#overlay').classList.add('hidden'); }
+$('#btnMenu').onclick = openSidebar;
+$('#overlay').onclick = closeSidebar;
+$('#btnLogin').onclick = openLoginModal;
+$('#btnBell').onclick = ()=>{
+  const pend = DB.bookings.filter(b=>b.status==='pending');
+  if(!isAdmin){
+    if(pend.length) {
+      Swal.fire({icon:'info', title:'มีการจองรอพิจารณา '+pend.length+' รายการ',
+        text:'กรุณาเข้าสู่ระบบผู้ดูแลเพื่อดำเนินการ', confirmButtonColor:'#0C7C82'})
+        .then(()=>openLoginModal());
+    } else {
+      Toast.fire({icon:'info', title:'ไม่มีการแจ้งเตือนใหม่'});
+    }
+    return;
+  }
+  if(!pend.length) return Toast.fire({icon:'success', title:'ไม่มีการจองที่รอพิจารณา'});
+  Swal.fire({
+    icon:'warning',
+    title:`มี ${pend.length} รายการรอพิจารณา`,
+    html:`<div class="text-sm text-left max-h-56 overflow-auto">
+      ${pend.map(b=>`<div class="py-1.5 border-b border-slate-100">
+        <b>${esc(b.name)}</b><br><span class="text-slate-400 text-[12px]">${esc(b.destination)} • ${thDateTimeShort(b.departAt)}</span></div>`).join('')}
+    </div>`,
+    confirmButtonText:'ไปหน้าอนุมัติ', confirmButtonColor:'#0C7C82', showCancelButton:true, cancelButtonText:'ปิด'
+  }).then(r=>{ if(r.isConfirmed) navigate('admin'); });
+};
+
+/* =========================================================
+   BOOT
+   ========================================================= */
+/* =========================================================
+   BOOT
+   ========================================================= */
+(async function boot(){
+  loadDB();
+  render(true);
+
+  try {
+    // ลบรายการที่ผ่านเวลาก่อน แล้วดึงข้อมูลล่าสุด
+    await apiCall('cleanupExpired').catch(()=>{});
+    await loadFromServer();
+    render(false);
+  } catch(e){
+    console.warn('ใช้ข้อมูลแคช:', e);
+    render(false);
+    warnToast('เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ ใช้ข้อมูลแคช');
+  }
+
+  // popup entry หลังข้อมูลพร้อม
+  setTimeout(showEntryPopup, 500);
+
+  // sync cleanup ทุก 3 นาที
+  setInterval(async ()=>{
+    try {
+      const r = await apiCall('cleanupExpired');
+      if(r && r.deleted && r.deleted.length){
+        await loadFromServer();
+        render(false);
+        Toast.fire({icon:'info', title:'ลบรายการที่ผ่านเวลากลับแล้ว '+r.deleted.length+' รายการ'});
+      } else {
+        updateBadges();
+      }
+    } catch(e){ updateBadges(); }
+  }, 3*60*1000);
+
+  let rt=null;
+  window.addEventListener('resize', ()=>{
+    clearTimeout(rt);
+    rt = setTimeout(()=>{ if(currentPage==='stats') drawMonthChart(); }, 250);
+  });
+})();
+</script>
+</body>
+</html>
