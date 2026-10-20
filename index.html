@@ -2036,7 +2036,7 @@ function openVehicleModal(id){
 
   $('#btnSaveVehicle').onclick = ()=>{
     const plate = $('#v_plate').value.trim();
-    const name = $('#v_name').value.trim();
+    const name  = $('#v_name').value.trim();
     const seats = $('#v_seats').value.trim();
     if(!plate) return warnToast('กรุณากรอกทะเบียนรถ');
     let target;
@@ -2054,7 +2054,8 @@ function openVehicleModal(id){
     saveDB();
     apiCall('saveVehicle', target).catch(e => console.warn(e));
     closeModal(); render(false); okToast('บันทึกข้อมูลรถแล้ว');
-}
+  };   // ← ✅ ต้องมี ; และ }
+}      // ← ✅ ต้องมี } ปิด openVehicleModal
 function confirmDeleteVehicle(id){
   const v = getVehicle(id); if(!v) return;
   if(isVehicleBusy(id, null)) return Swal.fire({icon:'error',title:'ไม่สามารถลบได้',text:'รถคันนี้กำลังถูกใช้งานอยู่',confirmButtonColor:'#0C7C82'});
